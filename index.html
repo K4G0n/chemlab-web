@@ -47,12 +47,15 @@
     document.body.prepend(renderer.domElement);
 
     const clock = new THREE.Clock(), raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2(0,0), keys = new Set(), interactables = [], sodiums = [], bubbles = [];
+    const pointer = new THREE.Vector2(0,0), keys = new Set(), interactables = [], sodiums = [], bubbles = [], ripples = [];
     let yaw=0, pitch=-.10, locked=false, held=null, target=null, statusTimer=0;
     const prompt = document.querySelector('#prompt'), status = document.querySelector('#status'), start = document.querySelector('#start');
 
     const mat = (color, rough=.55, metal=.1) => new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
-    const mats = { floor:mat('#152348'), wall:mat('#e3f3ff'), counter:mat('#321c52'), edge:mat('#ff9a47',.38,.18), glass:mat('#41d9f0',.24,.25), water:mat('#186cf3',.22,.1), sodium:mat('#dce7ee',.25,.82), blue:mat('#1b75be',.4,.35), mint:mat('#40e8c6',.32,.15), yellow:mat('#ffd45c',.4,.1), bubble:mat('#c8f9ff',.15,.05), flame:mat('#ff5a19',.25,.0) };
+    const glassMaterial = new THREE.MeshPhysicalMaterial({color:'#65e5ff',roughness:.1,metalness:.08,transparent:true,opacity:.42,transmission:.12,side:THREE.DoubleSide});
+    const waterMaterial = new THREE.MeshPhysicalMaterial({color:'#1677ff',roughness:.08,metalness:.02,transparent:true,opacity:.8,transmission:.05,side:THREE.DoubleSide});
+    const rippleMaterial = new THREE.MeshBasicMaterial({color:'#8cecff',transparent:true,opacity:.75,side:THREE.DoubleSide});
+    const mats = { floor:mat('#152348'), wall:mat('#e3f3ff'), counter:mat('#321c52'), edge:mat('#ff9a47',.38,.18), glass:glassMaterial, water:waterMaterial, sodium:mat('#dce7ee',.25,.82), blue:mat('#1b75be',.4,.35), mint:mat('#40e8c6',.32,.15), yellow:mat('#ffd45c',.4,.1), bubble:mat('#c8f9ff',.15,.05), flame:mat('#ff5a19',.25,.0) };
     function mesh(geo, material, pos, opts={}) { const m=new THREE.Mesh(geo,material); m.position.copy(pos); m.castShadow=opts.cast!==false; m.receiveShadow=opts.receive!==false; scene.add(m); return m; }
     function box(size, material, pos, opts={}) { return mesh(new THREE.BoxGeometry(...size),material,new THREE.Vector3(...pos),opts); }
     function cyl(radius, height, material, pos, opts={}) { return mesh(new THREE.CylinderGeometry(radius,radius,height,28),material,new THREE.Vector3(...pos),opts); }
@@ -76,10 +79,12 @@
       s.userData={kind:'sodium', held:false, reacting:false, velocity:new THREE.Vector3(), home:s.position.clone()}; interactables.push(s); sodiums.push(s);
     }
 
-    // Beaker: water is a visual + target radius, rails make clear glass outline
+    // Beaker: transparent glass, an animated water surface, and a bright readable rim.
     const water= cyl(.83,.72,mats.water,[-.45,1.52,1.7]); water.userData={kind:'water'};
+    const waterSurface=mesh(new THREE.CircleGeometry(.81,48),new THREE.MeshBasicMaterial({color:'#56b8ff',transparent:true,opacity:.88,side:THREE.DoubleSide}),new THREE.Vector3(-.45,1.89,1.7),{cast:false}); waterSurface.rotation.x=-Math.PI/2;
     cyl(.95,.1,mats.glass,[-.45,1.1,1.7]); cyl(.95,.1,mats.glass,[-.45,1.94,1.7]);
     for(const [x,z] of [[-.84,1.31],[-.06,1.31],[-.84,2.09],[-.06,2.09]]) cyl(.06,.86,mats.glass,[x,1.53,z]);
+    for(let i=0;i<3;i++){ const ring=new THREE.Mesh(new THREE.TorusGeometry(.24+i*.17,.016,8,36),rippleMaterial.clone()); ring.rotation.x=Math.PI/2; ring.position.set(-.45,1.905,1.7); ring.userData={phase:i*2.1}; scene.add(ring); ripples.push(ring); }
 
     // Burner and vacuum pump are inspectable.
     const burner=cyl(.46,.2,mats.blue,[2.05,1.33,1.7]); cyl(.13,.7,mats.blue,[2.05,1.7,1.7]); cyl(.21,.12,mats.edge,[2.05,2.08,1.7]); burner.userData={kind:'equipment', message:'Bunsen burner selected. Heating comes after the sodium-water interaction is validated.'}; interactables.push(burner);
@@ -98,12 +103,12 @@
       if(held){ throwHeld(); return; }
       target=findTarget(); if(!target) { statusText('Aim at an object until the mint interaction ring appears.',3); return; }
       const d=target.userData;
-      if(d.kind==='sodium'){ held=target; d.held=true; statusText('Holding sodium. Press <b>F</b> to drop it, or click to throw it into the blue beaker.'); }
+      if(d.kind==='sodium'){ held=target; d.held=true; d.velocity.set(0,0,0); statusText('Holding sodium. Press <b>F</b> to drop it, or click to throw it into the blue beaker.'); }
       else statusText(d.message || 'Object selected.');
     }
     function dropHeld(){ if(!held) return; held.userData.held=false; held.userData.velocity.set(0,-.1,0); held=null; }
     function throwHeld(){ if(!held) return; const s=held; s.userData.held=false; s.userData.velocity.copy(camera.getWorldDirection(new THREE.Vector3())).multiplyScalar(8); held=null; }
-    function react(s){ if(s.userData.reacting) return; s.userData.reacting=true; statusText('<b>REACTION:</b> 2Na + 2H₂O → 2NaOH + H₂↑ + heat. Hydrogen bubbles are forming.'); for(let i=0;i<34;i++){const b=mesh(particleGeo,mats.bubble,s.position.clone().add(new THREE.Vector3((Math.random()-.5)*.8,0,(Math.random()-.5)*.8)),{cast:false}); b.userData={life:2+Math.random(),v:new THREE.Vector3((Math.random()-.5)*.2,.65+Math.random()*.8,(Math.random()-.5)*.2)}; bubbles.push(b);} setTimeout(()=>{ const flash=mesh(new THREE.SphereGeometry(.38,16,12),mats.flame,s.position.clone().add(new THREE.Vector3(0,.35,0))); const light=new THREE.PointLight('#ff5a19',18,5); light.position.copy(flash.position); scene.add(light); setTimeout(()=>{scene.remove(flash,light);},500); },900); }
+    function react(s){ if(s.userData.reacting) return; s.userData.reacting=true; statusText('<b>REACTION:</b> 2Na + 2H₂O → 2NaOH + H₂↑ + heat. Hydrogen bubbles are forming.'); for(let i=0;i<34;i++){const b=mesh(particleGeo,mats.bubble,s.position.clone().add(new THREE.Vector3((Math.random()-.5)*.8,0,(Math.random()-.5)*.8)),{cast:false}); b.userData={life:2+Math.random(),v:new THREE.Vector3((Math.random()-.5)*.2,.65+Math.random()*.8,(Math.random()-.5)*.2)}; bubbles.push(b);} for(let i=0;i<4;i++){const r=new THREE.Mesh(new THREE.TorusGeometry(.08,.018,8,32),rippleMaterial.clone()); r.rotation.x=Math.PI/2; r.position.set(water.position.x,1.91,water.position.z); r.userData={life:1.5+i*.25,burst:true}; scene.add(r); ripples.push(r);} setTimeout(()=>{ const flash=mesh(new THREE.SphereGeometry(.38,16,12),mats.flame,s.position.clone().add(new THREE.Vector3(0,.35,0))); const light=new THREE.PointLight('#ff5a19',18,5); light.position.copy(flash.position); scene.add(light); setTimeout(()=>{scene.remove(flash,light);},500); },900); }
 
     document.querySelector('#startButton').onclick=()=>renderer.domElement.requestPointerLock();
     document.addEventListener('pointerlockchange',()=>{ locked=document.pointerLockElement===renderer.domElement; start.style.display=locked?'none':'grid'; if(!locked && held) dropHeld(); });
@@ -114,11 +119,13 @@
     addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 
     function tick(){
-      const dt=Math.min(clock.getDelta(),.05); const speed=4.4*dt; const forward=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)), right=new THREE.Vector3(forward.z,0,-forward.x);
+      const dt=Math.min(clock.getDelta(),.05); const speed=4.4*dt; const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)), right=new THREE.Vector3(-forward.z,0,forward.x);
       if(keys.has('KeyW')) camera.position.addScaledVector(forward,speed); if(keys.has('KeyS')) camera.position.addScaledVector(forward,-speed); if(keys.has('KeyA')) camera.position.addScaledVector(right,-speed); if(keys.has('KeyD')) camera.position.addScaledVector(right,speed); if(keys.has('Space')) camera.position.y+=speed; if(keys.has('ShiftLeft')||keys.has('ShiftRight')) camera.position.y-=speed;
       camera.position.x=Math.max(-8.7,Math.min(8.7,camera.position.x)); camera.position.y=Math.max(.4,Math.min(7.8,camera.position.y)); camera.position.z=Math.max(-8,Math.min(8,camera.position.z)); camera.rotation.set(pitch,yaw,0,'YXZ');
       if(held){ const front=camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(1.75).add(camera.position); held.position.lerp(front,Math.min(1,dt*16)); }
       for(const s of sodiums){ const d=s.userData; if(!d.held && !d.reacting){ d.velocity.y-=5*dt; s.position.addScaledVector(d.velocity,dt); if(s.position.y<1.45){s.position.y=1.45; d.velocity.y=Math.abs(d.velocity.y)*.18; d.velocity.x*=.8;d.velocity.z*=.8;} const dx=s.position.x-water.position.x,dz=s.position.z-water.position.z; if(dx*dx+dz*dz<.75*.75 && s.position.y<2.05) react(s); } if(d.reacting){ s.position.y=1.84+Math.sin(performance.now()*.018)*.035; s.position.x+=Math.sin(performance.now()*.025)*.004; s.scale.multiplyScalar(.997); if(s.scale.x<.02){scene.remove(s); interactables.splice(interactables.indexOf(s),1);} } }
+      waterSurface.position.y=1.895+Math.sin(performance.now()*.003)*.008;
+      for(const r of ripples){ if(r.userData.burst){r.userData.life-=dt;r.scale.multiplyScalar(1.035);r.material.opacity=Math.max(0,r.userData.life*.48);if(r.userData.life<=0){scene.remove(r);ripples.splice(ripples.indexOf(r),1);}} else { const pulse=1+Math.sin(performance.now()*.002+r.userData.phase)*.045;r.scale.setScalar(pulse);r.material.opacity=.38+Math.sin(performance.now()*.002+r.userData.phase)*.16; } }
       for(let i=bubbles.length-1;i>=0;i--){const b=bubbles[i]; b.position.addScaledVector(b.userData.v,dt); b.userData.life-=dt; b.scale.setScalar(Math.max(0,b.userData.life/2)); if(b.userData.life<=0){scene.remove(b);bubbles.splice(i,1);}}
       updateTarget(); if(statusTimer>0){statusTimer-=dt;} renderer.render(scene,camera); requestAnimationFrame(tick);
     }
