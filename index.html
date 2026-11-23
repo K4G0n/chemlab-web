@@ -42,8 +42,10 @@
     const camera = new THREE.PerspectiveCamera(67, innerWidth/innerHeight, .05, 100);
     camera.position.set(0, 2.25, -7.3);
     const renderer = new THREE.WebGLRenderer({antialias:true});
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled = true;
+    // A conservative pixel ratio and no realtime shadows keep the public build
+    // responsive on ordinary laptops while preserving the cartoon art direction.
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.25));
+    renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled = false;
     document.body.prepend(renderer.domElement);
 
     const clock = new THREE.Clock(), raycaster = new THREE.Raycaster();
@@ -52,8 +54,8 @@
     const prompt = document.querySelector('#prompt'), status = document.querySelector('#status'), start = document.querySelector('#start');
 
     const mat = (color, rough=.55, metal=.1) => new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
-    const glassMaterial = new THREE.MeshPhysicalMaterial({color:'#65e5ff',roughness:.1,metalness:.08,transparent:true,opacity:.42,transmission:.12,side:THREE.DoubleSide});
-    const waterMaterial = new THREE.MeshPhysicalMaterial({color:'#1677ff',roughness:.08,metalness:.02,transparent:true,opacity:.8,transmission:.05,side:THREE.DoubleSide});
+    const glassMaterial = new THREE.MeshStandardMaterial({color:'#65e5ff',roughness:.14,metalness:.08,transparent:true,opacity:.42,side:THREE.DoubleSide});
+    const waterMaterial = new THREE.MeshStandardMaterial({color:'#1677ff',roughness:.1,metalness:.02,transparent:true,opacity:.8,side:THREE.DoubleSide});
     const rippleMaterial = new THREE.MeshBasicMaterial({color:'#8cecff',transparent:true,opacity:.75,side:THREE.DoubleSide});
     const mats = { floor:mat('#152348'), wall:mat('#e3f3ff'), counter:mat('#321c52'), edge:mat('#ff9a47',.38,.18), glass:glassMaterial, water:waterMaterial, sodium:mat('#dce7ee',.25,.82), blue:mat('#1b75be',.4,.35), mint:mat('#40e8c6',.32,.15), yellow:mat('#ffd45c',.4,.1), bubble:mat('#c8f9ff',.15,.05), flame:mat('#ff5a19',.25,.0) };
     function mesh(geo, material, pos, opts={}) { const m=new THREE.Mesh(geo,material); m.position.copy(pos); m.castShadow=opts.cast!==false; m.receiveShadow=opts.receive!==false; scene.add(m); return m; }
@@ -94,16 +96,18 @@
     box([5.2,4.25,.3],mats.counter,[6.5,3.2,7.95]);
     for(let i=0;i<48;i++){ const col=i%12,row=Math.floor(i/12); const t=box([.3,.28,.08],i===10?mats.sodium:(i%3?mats.blue:mats.mint),[4.38+col*.38,4.65-row*.42,7.75]); t.userData={kind:'element', symbol:['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg'][col], message:'Element cabinet is visual in this first web milestone. Sodium is the active experiment.'}; interactables.push(t); }
 
-    const selection = new THREE.Mesh(new THREE.TorusGeometry(.38,.04,10,28), new THREE.MeshBasicMaterial({color:'#4ef0df'})); selection.rotation.x=Math.PI/2; selection.visible=false; scene.add(selection);
+    // A box outline reads like Minecraft's selection border and never hides the object.
+    const selection = new THREE.BoxHelper(new THREE.Object3D(), '#4ef0df');
+    selection.material.transparent=true; selection.material.opacity=.95; selection.visible=false; scene.add(selection);
     const particleGeo = new THREE.SphereGeometry(.05,10,8);
 
     function findTarget(){ raycaster.setFromCamera(pointer,camera); const hits=raycaster.intersectObjects(interactables,false); return hits.length ? hits[0].object : null; }
-    function updateTarget(){ if(held){ prompt.textContent='HOLDING SODIUM  ·  [F] DROP  ·  [CLICK] THROW'; selection.visible=false; return; } target=findTarget(); if(!target){prompt.textContent=''; selection.visible=false; return;} selection.visible=true; selection.position.copy(target.position); selection.position.y-=.24; prompt.textContent=target.userData.kind==='sodium'?'SODIUM  ·  [E OR CLICK] PICK UP':'[E OR CLICK] INTERACT'; }
+    function updateTarget(){ if(held){ prompt.textContent='HOLDING SODIUM  ·  [F] DROP  ·  [CLICK] THROW'; selection.visible=false; return; } target=findTarget(); if(!target){prompt.textContent=''; selection.visible=false; return;} selection.visible=true; selection.setFromObject(target); prompt.textContent=target.userData.kind==='sodium'?'SODIUM  ·  [E OR CLICK] PICK UP':'[E OR CLICK] INTERACT'; }
     function interact(){
       if(held){ throwHeld(); return; }
-      target=findTarget(); if(!target) { statusText('Aim at an object until the mint interaction ring appears.',3); return; }
+      target=findTarget(); if(!target) { statusText('Aim at an object until the mint selection outline appears.',3); return; }
       const d=target.userData;
-      if(d.kind==='sodium'){ held=target; d.held=true; d.velocity.set(0,0,0); statusText('Holding sodium. Press <b>F</b> to drop it, or click to throw it into the blue beaker.'); }
+      if(d.kind==='sodium'){ held=target; d.held=true; d.velocity.set(0,0,0); held.rotation.set(0,0,0); statusText('Holding sodium. Press <b>F</b> to drop it, or click to throw it into the blue beaker.'); }
       else statusText(d.message || 'Object selected.');
     }
     function dropHeld(){ if(!held) return; held.userData.held=false; held.userData.velocity.set(0,-.1,0); held=null; }
@@ -122,10 +126,10 @@
       const dt=Math.min(clock.getDelta(),.05); const speed=4.4*dt; const forward=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw)), right=new THREE.Vector3(-forward.z,0,forward.x);
       if(keys.has('KeyW')) camera.position.addScaledVector(forward,speed); if(keys.has('KeyS')) camera.position.addScaledVector(forward,-speed); if(keys.has('KeyA')) camera.position.addScaledVector(right,-speed); if(keys.has('KeyD')) camera.position.addScaledVector(right,speed); if(keys.has('Space')) camera.position.y+=speed; if(keys.has('ShiftLeft')||keys.has('ShiftRight')) camera.position.y-=speed;
       camera.position.x=Math.max(-8.7,Math.min(8.7,camera.position.x)); camera.position.y=Math.max(.4,Math.min(7.8,camera.position.y)); camera.position.z=Math.max(-8,Math.min(8,camera.position.z)); camera.rotation.set(pitch,yaw,0,'YXZ');
-      if(held){ const front=camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(1.75).add(camera.position); held.position.lerp(front,Math.min(1,dt*16)); }
+      if(held){ const front=camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(1.75).add(camera.position); held.position.copy(front); held.userData.velocity.set(0,0,0); }
       for(const s of sodiums){ const d=s.userData; if(!d.held && !d.reacting){ d.velocity.y-=5*dt; s.position.addScaledVector(d.velocity,dt); if(s.position.y<1.45){s.position.y=1.45; d.velocity.y=Math.abs(d.velocity.y)*.18; d.velocity.x*=.8;d.velocity.z*=.8;} const dx=s.position.x-water.position.x,dz=s.position.z-water.position.z; if(dx*dx+dz*dz<.75*.75 && s.position.y<2.05) react(s); } if(d.reacting){ s.position.y=1.84+Math.sin(performance.now()*.018)*.035; s.position.x+=Math.sin(performance.now()*.025)*.004; s.scale.multiplyScalar(.997); if(s.scale.x<.02){scene.remove(s); interactables.splice(interactables.indexOf(s),1);} } }
       waterSurface.position.y=1.895+Math.sin(performance.now()*.003)*.008;
-      for(const r of ripples){ if(r.userData.burst){r.userData.life-=dt;r.scale.multiplyScalar(1.035);r.material.opacity=Math.max(0,r.userData.life*.48);if(r.userData.life<=0){scene.remove(r);ripples.splice(ripples.indexOf(r),1);}} else { const pulse=1+Math.sin(performance.now()*.002+r.userData.phase)*.045;r.scale.setScalar(pulse);r.material.opacity=.38+Math.sin(performance.now()*.002+r.userData.phase)*.16; } }
+      for(const r of [...ripples]){ if(r.userData.burst){r.userData.life-=dt;r.scale.multiplyScalar(1.035);r.material.opacity=Math.max(0,r.userData.life*.48);if(r.userData.life<=0){scene.remove(r);ripples.splice(ripples.indexOf(r),1);}} else { const pulse=1+Math.sin(performance.now()*.002+r.userData.phase)*.045;r.scale.setScalar(pulse);r.material.opacity=.38+Math.sin(performance.now()*.002+r.userData.phase)*.16; } }
       for(let i=bubbles.length-1;i>=0;i--){const b=bubbles[i]; b.position.addScaledVector(b.userData.v,dt); b.userData.life-=dt; b.scale.setScalar(Math.max(0,b.userData.life/2)); if(b.userData.life<=0){scene.remove(b);bubbles.splice(i,1);}}
       updateTarget(); if(statusTimer>0){statusTimer-=dt;} renderer.render(scene,camera); requestAnimationFrame(tick);
     }
