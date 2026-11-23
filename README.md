@@ -4,12 +4,13 @@ ChemLab is a browser-based **2D physics sandbox** for exploring periodic-table r
 
 ## Playable systems
 
-- Genuine 2D Matter.js physics: gravity, collisions, angular movement, drag/throw, stable fixed-step simulation, pause, slow motion, and pan/zoom.
+- Genuine 2D Matter.js physics: a real static ground and side boundaries, gravity, collisions, angular movement, drag/throw with explicit release restoration, fixed-step simulation, pause, slow motion, and pan/zoom.
 - Empty sandbox with cursor-accurate spawning: choose an item, move the cursor, press **E**. The selected catalog item remains available for repeated spawning.
 - **94 spawnable elements**: hydrogen (1) through plutonium (94), arranged by periodic-table category with search.
 - Advanced reference inspector: atomic number/mass, neutral proton/electron counts, isotope-dependent neutron note, electron configuration, oxidation states, density, melting/boiling point, standard state, and electronegativity when source data is available.
-- Compound catalog: water, oxygen, nitrogen, carbon dioxide, sodium chloride, sodium hydroxide, hydrogen, ammonia, methane, ethanol, calcium carbonate, and sodium bicarbonate.
-- Functional starter tools: beaker, heater plate, thermometer, pressure chamber, digital scale, and safety shield.
+- **Normal Mode** creates macroscopic approximations: solid chunks/crystals, powder particles, liquid droplets, and visible gas-cloud particles. **Quantum Mode** uses representative atom and molecule samples; it is not a wavefunction or molecular-dynamics solver.
+- 24 bundled compounds and material samples, including common liquids/gases, salts, acids/bases, reaction products, and simplified solution markers.
+- Functional starter tools: beaker, heater plate, cooling plate, thermometer, pH meter, magnetic stirrer, airflow fan, pressure chamber, digital scale, and safety shield.
 - Conditions: temperature, pressure, gravity, simulation speed, pause, optional grid.
 - Object operations: select, drag, throw, rectangle multiselect, duplicate, rotate, freeze, delete, undo/redo, and right-click context actions.
 - Local scene save/load and a Discovery Notebook that records only implemented rule-based reactions.
@@ -34,11 +35,11 @@ ChemLab is a browser-based **2D physics sandbox** for exploring periodic-table r
 
 ## Chemistry scope
 
-This is **not** molecular dynamics, quantum chemistry, or real-world lab guidance. It uses explicit, documented rule-based events. A currently supported starter reaction is the virtual educational sodium–water visualization:
+This is **not** molecular dynamics, quantum chemistry, or real-world lab guidance. It uses explicit, documented rule-based events. The bundled reaction catalog currently has 10 educational rules across water reaction, neutralization, gas formation, precipitation, displacement, and dissolution. For example:
 
 `2Na + 2H₂O → 2NaOH + H₂↑`
 
-Unsupported contacts intentionally remain inert rather than inventing chemistry. Phase and pressure behavior is an educational approximation. Missing values remain unavailable rather than fabricated.
+Unsupported contacts intentionally remain inert rather than inventing chemistry. Water and ethanol currently receive simplified melting/boiling transitions; other phase and pressure behavior remains an educational approximation. The pressure chamber reports global sandbox pressure only—it is not yet an isolated pressure volume. Missing values remain unavailable rather than fabricated.
 
 ## Run locally
 
