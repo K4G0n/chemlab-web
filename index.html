@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ChemLab — Sodium + Water</title>
+  <style>
+    :root { color-scheme: dark; --ink:#eef5ff; --muted:#9fb4d4; --cyan:#4ef0df; --orange:#ff9a47; --panel:rgba(8,18,42,.84); }
+    * { box-sizing:border-box; }
+    body { margin:0; overflow:hidden; font-family: ui-rounded, "Avenir Next", system-ui, sans-serif; background:#0c1837; color:var(--ink); }
+    canvas { display:block; }
+    #hud { position:fixed; inset:0; pointer-events:none; }
+    #card { position:absolute; top:18px; left:18px; width:min(460px,calc(100vw - 36px)); padding:16px 18px; border:1px solid rgba(117,224,255,.4); border-radius:16px; background:var(--panel); box-shadow:0 14px 50px rgba(0,0,0,.28); }
+    h1 { margin:0 0 7px; font-size:20px; letter-spacing:.08em; color:var(--cyan); }
+    p { margin:0; font-size:13px; line-height:1.5; color:var(--muted); }
+    kbd { padding:2px 6px; border-radius:5px; border:1px solid #53698d; color:var(--ink); font:600 11px ui-monospace,monospace; }
+    #reticle { position:absolute; left:50%; top:50%; translate:-50% -50%; color:white; font-size:31px; line-height:1; text-shadow:0 0 8px #000; }
+    #prompt { position:absolute; left:50%; top:calc(50% + 31px); translate:-50% 0; min-width:260px; text-align:center; color:var(--cyan); font-weight:800; font-size:13px; letter-spacing:.05em; text-shadow:0 2px 5px #000; }
+    #status { position:absolute; left:18px; bottom:18px; width:min(700px,calc(100vw - 36px)); padding:13px 16px; border-radius:13px; background:var(--panel); border:1px solid rgba(255,255,255,.15); color:#f4f8ff; font-size:14px; line-height:1.42; }
+    #start { pointer-events:auto; position:absolute; inset:0; display:grid; place-items:center; background:radial-gradient(circle at 50% 35%,rgba(36,81,160,.42),rgba(4,11,28,.9)); }
+    #start .modal { width:min(480px,calc(100vw - 36px)); padding:32px; border-radius:24px; border:1px solid rgba(106,240,224,.45); background:#101e42; text-align:center; box-shadow:0 30px 90px rgba(0,0,0,.42); }
+    #start h2 { color:var(--cyan); margin:0 0 10px; font-size:28px; }
+    #start p { margin:0 0 20px; font-size:15px; }
+    button { cursor:pointer; border:0; border-radius:12px; padding:13px 19px; font:800 14px ui-rounded,system-ui; color:#092030; background:var(--cyan); box-shadow:0 8px 0 #159f9a; }
+    button:active { translate:0 6px; box-shadow:0 2px 0 #159f9a; }
+    #test { position:absolute; right:18px; bottom:18px; color:var(--muted); font-size:11px; text-align:right; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <section id="card"><h1>CHEMLAB · SODIUM + WATER</h1><p><kbd>W A S D</kbd> fly · <kbd>Space</kbd> up · <kbd>Shift</kbd> down · <kbd>E</kbd> or click pick up · <kbd>F</kbd> drop · click while holding to throw</p></section>
+    <div id="reticle">+</div><div id="prompt"></div><div id="status">Click <b>Start Lab</b>, aim at a silver sodium cube, then press <b>E</b> or click.</div>
+    <div id="test">Web build · no Unity</div>
+    <div id="start"><div class="modal"><h2>ChemLab Web</h2><p>A browser-based, cartoon chemistry lab. This first experiment models sodium reacting with water as an educational visualization.</p><button id="startButton">START LAB</button></div></div>
+  </div>
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.181.1/build/three.module.js';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#18356d');
+    scene.fog = new THREE.Fog('#18356d', 18, 40);
+    const camera = new THREE.PerspectiveCamera(67, innerWidth/innerHeight, .05, 100);
+    camera.position.set(0, 2.25, -7.3);
+    const renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight); renderer.shadowMap.enabled = true;
+    document.body.prepend(renderer.domElement);
+
+    const clock = new THREE.Clock(), raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2(0,0), keys = new Set(), interactables = [], sodiums = [], bubbles = [];
+    let yaw=0, pitch=-.10, locked=false, held=null, target=null, statusTimer=0;
+    const prompt = document.querySelector('#prompt'), status = document.querySelector('#status'), start = document.querySelector('#start');
+
+    const mat = (color, rough=.55, metal=.1) => new THREE.MeshStandardMaterial({color,roughness:rough,metalness:metal});
+    const mats = { floor:mat('#152348'), wall:mat('#e3f3ff'), counter:mat('#321c52'), edge:mat('#ff9a47',.38,.18), glass:mat('#41d9f0',.24,.25), water:mat('#186cf3',.22,.1), sodium:mat('#dce7ee',.25,.82), blue:mat('#1b75be',.4,.35), mint:mat('#40e8c6',.32,.15), yellow:mat('#ffd45c',.4,.1), bubble:mat('#c8f9ff',.15,.05), flame:mat('#ff5a19',.25,.0) };
+    function mesh(geo, material, pos, opts={}) { const m=new THREE.Mesh(geo,material); m.position.copy(pos); m.castShadow=opts.cast!==false; m.receiveShadow=opts.receive!==false; scene.add(m); return m; }
+    function box(size, material, pos, opts={}) { return mesh(new THREE.BoxGeometry(...size),material,new THREE.Vector3(...pos),opts); }
+    function cyl(radius, height, material, pos, opts={}) { return mesh(new THREE.CylinderGeometry(radius,radius,height,28),material,new THREE.Vector3(...pos),opts); }
+    function statusText(text, seconds=7) { status.innerHTML=text; statusTimer=seconds; }
+
+    // Room and bright cartoon lighting
+    box([20,.5,18],mats.floor,[0,-.3,1]); box([20,10,.35],mats.wall,[0,5,8.5]); box([.35,10,18],mats.wall,[-9.8,5,0]); box([.35,10,18],mats.wall,[9.8,5,0]);
+    const hemi=new THREE.HemisphereLight('#c5edff','#132247',2.3); scene.add(hemi);
+    const sun=new THREE.DirectionalLight('#fff4dd',2.8); sun.position.set(-5,9,-4); sun.castShadow=true; scene.add(sun);
+    for (const x of [-5,0,5]) { const l=new THREE.PointLight('#77f6ff',18,12); l.position.set(x,7,1); scene.add(l); box([2.5,.12,1],mats.mint,[x,7.8,1],{cast:false}); }
+
+    // Lab bench
+    box([13,.4,3.3],mats.counter,[0,1,1.8]); box([13.2,.2,.2],mats.edge,[0,.84,.2]);
+    for (const x of [-5.6,5.6]) for (const z of [.55,3]) cyl(.28,1.6,mats.blue,[x,.3,z]);
+    box([13,2.5,.2],mats.blue,[0,2.4,3.35]);
+
+    // Sodium tray and samples
+    box([2.4,.16,1.35],mats.edge,[-3.35,1.28,1.7]);
+    for (let i=0;i<3;i++) {
+      const s=box([.42,.42,.42],mats.sodium,[-3.9+i*.55,1.57,1.7]);
+      s.userData={kind:'sodium', held:false, reacting:false, velocity:new THREE.Vector3(), home:s.position.clone()}; interactables.push(s); sodiums.push(s);
+    }
+
+    // Beaker: water is a visual + target radius, rails make clear glass outline
+    const water= cyl(.83,.72,mats.water,[-.45,1.52,1.7]); water.userData={kind:'water'};
+    cyl(.95,.1,mats.glass,[-.45,1.1,1.7]); cyl(.95,.1,mats.glass,[-.45,1.94,1.7]);
+    for(const [x,z] of [[-.84,1.31],[-.06,1.31],[-.84,2.09],[-.06,2.09]]) cyl(.06,.86,mats.glass,[x,1.53,z]);
+
+    // Burner and vacuum pump are inspectable.
+    const burner=cyl(.46,.2,mats.blue,[2.05,1.33,1.7]); cyl(.13,.7,mats.blue,[2.05,1.7,1.7]); cyl(.21,.12,mats.edge,[2.05,2.08,1.7]); burner.userData={kind:'equipment', message:'Bunsen burner selected. Heating comes after the sodium-water interaction is validated.'}; interactables.push(burner);
+    const pump=box([1.35,.8,1.05],mats.blue,[4.1,1.5,1.7]); pump.userData={kind:'equipment', message:'Vacuum pump selected. Vacuum experiments are planned for the equipment milestone.'}; interactables.push(pump);
+
+    // Element cabinet, deliberately not all tiles are game mechanics yet.
+    box([5.2,4.25,.3],mats.counter,[6.5,3.2,7.95]);
+    for(let i=0;i<48;i++){ const col=i%12,row=Math.floor(i/12); const t=box([.3,.28,.08],i===10?mats.sodium:(i%3?mats.blue:mats.mint),[4.38+col*.38,4.65-row*.42,7.75]); t.userData={kind:'element', symbol:['H','He','Li','Be','B','C','N','O','F','Ne','Na','Mg'][col], message:'Element cabinet is visual in this first web milestone. Sodium is the active experiment.'}; interactables.push(t); }
+
+    const selection = new THREE.Mesh(new THREE.TorusGeometry(.38,.04,10,28), new THREE.MeshBasicMaterial({color:'#4ef0df'})); selection.rotation.x=Math.PI/2; selection.visible=false; scene.add(selection);
+    const particleGeo = new THREE.SphereGeometry(.05,10,8);
+
+    function findTarget(){ raycaster.setFromCamera(pointer,camera); const hits=raycaster.intersectObjects(interactables,false); return hits.length ? hits[0].object : null; }
+    function updateTarget(){ if(held){ prompt.textContent='HOLDING SODIUM  ·  [F] DROP  ·  [CLICK] THROW'; selection.visible=false; return; } target=findTarget(); if(!target){prompt.textContent=''; selection.visible=false; return;} selection.visible=true; selection.position.copy(target.position); selection.position.y-=.24; prompt.textContent=target.userData.kind==='sodium'?'SODIUM  ·  [E OR CLICK] PICK UP':'[E OR CLICK] INTERACT'; }
+    function interact(){
+      if(held){ throwHeld(); return; }
+      target=findTarget(); if(!target) { statusText('Aim at an object until the mint interaction ring appears.',3); return; }
+      const d=target.userData;
+      if(d.kind==='sodium'){ held=target; d.held=true; statusText('Holding sodium. Press <b>F</b> to drop it, or click to throw it into the blue beaker.'); }
+      else statusText(d.message || 'Object selected.');
+    }
+    function dropHeld(){ if(!held) return; held.userData.held=false; held.userData.velocity.set(0,-.1,0); held=null; }
+    function throwHeld(){ if(!held) return; const s=held; s.userData.held=false; s.userData.velocity.copy(camera.getWorldDirection(new THREE.Vector3())).multiplyScalar(8); held=null; }
+    function react(s){ if(s.userData.reacting) return; s.userData.reacting=true; statusText('<b>REACTION:</b> 2Na + 2H₂O → 2NaOH + H₂↑ + heat. Hydrogen bubbles are forming.'); for(let i=0;i<34;i++){const b=mesh(particleGeo,mats.bubble,s.position.clone().add(new THREE.Vector3((Math.random()-.5)*.8,0,(Math.random()-.5)*.8)),{cast:false}); b.userData={life:2+Math.random(),v:new THREE.Vector3((Math.random()-.5)*.2,.65+Math.random()*.8,(Math.random()-.5)*.2)}; bubbles.push(b);} setTimeout(()=>{ const flash=mesh(new THREE.SphereGeometry(.38,16,12),mats.flame,s.position.clone().add(new THREE.Vector3(0,.35,0))); const light=new THREE.PointLight('#ff5a19',18,5); light.position.copy(flash.position); scene.add(light); setTimeout(()=>{scene.remove(flash,light);},500); },900); }
+
+    document.querySelector('#startButton').onclick=()=>renderer.domElement.requestPointerLock();
+    document.addEventListener('pointerlockchange',()=>{ locked=document.pointerLockElement===renderer.domElement; start.style.display=locked?'none':'grid'; if(!locked && held) dropHeld(); });
+    document.addEventListener('mousemove',e=>{ if(!locked)return; yaw-=e.movementX*.0025; pitch=Math.max(-1.35,Math.min(1.35,pitch-e.movementY*.0025)); });
+    document.addEventListener('keydown',e=>{ keys.add(e.code); if(e.code==='KeyE') interact(); if(e.code==='KeyF') dropHeld(); });
+    document.addEventListener('keyup',e=>keys.delete(e.code));
+    document.addEventListener('mousedown',e=>{ if(locked && e.button===0) interact(); });
+    addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+    function tick(){
+      const dt=Math.min(clock.getDelta(),.05); const speed=4.4*dt; const forward=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)), right=new THREE.Vector3(forward.z,0,-forward.x);
+      if(keys.has('KeyW')) camera.position.addScaledVector(forward,speed); if(keys.has('KeyS')) camera.position.addScaledVector(forward,-speed); if(keys.has('KeyA')) camera.position.addScaledVector(right,-speed); if(keys.has('KeyD')) camera.position.addScaledVector(right,speed); if(keys.has('Space')) camera.position.y+=speed; if(keys.has('ShiftLeft')||keys.has('ShiftRight')) camera.position.y-=speed;
+      camera.position.x=Math.max(-8.7,Math.min(8.7,camera.position.x)); camera.position.y=Math.max(.4,Math.min(7.8,camera.position.y)); camera.position.z=Math.max(-8,Math.min(8,camera.position.z)); camera.rotation.set(pitch,yaw,0,'YXZ');
+      if(held){ const front=camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(1.75).add(camera.position); held.position.lerp(front,Math.min(1,dt*16)); }
+      for(const s of sodiums){ const d=s.userData; if(!d.held && !d.reacting){ d.velocity.y-=5*dt; s.position.addScaledVector(d.velocity,dt); if(s.position.y<1.45){s.position.y=1.45; d.velocity.y=Math.abs(d.velocity.y)*.18; d.velocity.x*=.8;d.velocity.z*=.8;} const dx=s.position.x-water.position.x,dz=s.position.z-water.position.z; if(dx*dx+dz*dz<.75*.75 && s.position.y<2.05) react(s); } if(d.reacting){ s.position.y=1.84+Math.sin(performance.now()*.018)*.035; s.position.x+=Math.sin(performance.now()*.025)*.004; s.scale.multiplyScalar(.997); if(s.scale.x<.02){scene.remove(s); interactables.splice(interactables.indexOf(s),1);} } }
+      for(let i=bubbles.length-1;i>=0;i--){const b=bubbles[i]; b.position.addScaledVector(b.userData.v,dt); b.userData.life-=dt; b.scale.setScalar(Math.max(0,b.userData.life/2)); if(b.userData.life<=0){scene.remove(b);bubbles.splice(i,1);}}
+      updateTarget(); if(statusTimer>0){statusTimer-=dt;} renderer.render(scene,camera); requestAnimationFrame(tick);
+    }
+    tick();
+  </script>
+</body>
+</html>
