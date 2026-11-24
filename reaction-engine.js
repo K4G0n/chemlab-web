@@ -26,10 +26,43 @@ function squaredDistance(left, right) {
   return Number.isFinite(dx) && Number.isFinite(dy) ? dx * dx + dy * dy : Infinity;
 }
 
+export function spatialNeighborPairs(bodies, neighborDistance = 72) {
+  const cellSize = Number(neighborDistance);
+  if (!(cellSize > 0)) return [];
+  const buckets = new Map();
+  const indexedBodies = bodies.map((body, index) => ({ body, index })).filter(({ body }) => {
+    const { x, y } = body?.position || {};
+    return Number.isFinite(Number(x)) && Number.isFinite(Number(y));
+  });
+  const cellFor = (body) => ({ x:Math.floor(Number(body.position.x) / cellSize), y:Math.floor(Number(body.position.y) / cellSize) });
+  const keyFor = ({ x, y }) => `${x},${y}`;
+  for (const entry of indexedBodies) {
+    const key = keyFor(cellFor(entry.body));
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(entry);
+  }
+  const pairs = [];
+  const limitSquared = cellSize * cellSize;
+  for (const entry of indexedBodies) {
+    const cell = cellFor(entry.body);
+    for (let y = cell.y - 1; y <= cell.y + 1; y++) for (let x = cell.x - 1; x <= cell.x + 1; x++) {
+      for (const candidate of buckets.get(keyFor({ x, y })) || []) {
+        if (candidate.index <= entry.index || squaredDistance(entry.body, candidate.body) > limitSquared) continue;
+        pairs.push([entry.body, candidate.body]);
+      }
+    }
+  }
+  return pairs;
+}
+
 export function connectedBodyClusters(bodies, neighborDistance = 72) {
+  const neighbors = new Map(bodies.map(body => [body, []]));
+  for (const [left, right] of spatialNeighborPairs(bodies, neighborDistance)) {
+    neighbors.get(left).push(right);
+    neighbors.get(right).push(left);
+  }
   const remaining = new Set(bodies);
   const clusters = [];
-  const limitSquared = neighborDistance * neighborDistance;
   while (remaining.size) {
     const cluster = [];
     const queue = [remaining.values().next().value];
@@ -37,11 +70,8 @@ export function connectedBodyClusters(bodies, neighborDistance = 72) {
     while (queue.length) {
       const body = queue.shift();
       cluster.push(body);
-      for (const candidate of [...remaining]) {
-        if (squaredDistance(body, candidate) <= limitSquared) {
-          remaining.delete(candidate);
-          queue.push(candidate);
-        }
+      for (const candidate of neighbors.get(body) || []) {
+        if (remaining.delete(candidate)) queue.push(candidate);
       }
     }
     clusters.push(cluster);

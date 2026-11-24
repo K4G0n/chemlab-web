@@ -1,9 +1,23 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { allocateCompactParticipants, findReactionParticipantBodies, planReaction } from '../reaction-engine.js';
+import { allocateCompactParticipants, findReactionParticipantBodies, planReaction, spatialNeighborPairs } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
+
+test('spatial neighbor pruning yields each nearby candidate pair once across grid boundaries', () => {
+  const bodies = [
+    { id:'left', position:{x:71,y:0} },
+    { id:'right', position:{x:73,y:0} },
+    { id:'nearby', position:{x:140,y:0} },
+    { id:'distant', position:{x:300,y:0} }
+  ];
+  assert.deepEqual(spatialNeighborPairs(bodies, 72).map(([left, right]) => [left.id, right.id]), [
+    ['left', 'right'],
+    ['left', 'nearby'],
+    ['right', 'nearby']
+  ]);
+});
 
 test('compact participant allocation selects one shared local source group for multi-reactant rules', () => {
   const bodies = [
