@@ -6,7 +6,7 @@ test('reaction registry uses unique structured entries and validates atom conser
   const validation = validateReactionRegistry();
   assert.equal(validation.valid, true, validation.errors.join('\n'));
   assert.equal(new Set(REACTION_RULES.map((rule) => rule.id)).size, REACTION_RULES.length);
-  assert.ok(REACTION_RULES.length >= 25);
+  assert.ok(REACTION_RULES.length >= 55);
   for (const rule of REACTION_RULES) {
     assert.ok(rule.reference);
     assert.ok(rule.validation === 'balanced');

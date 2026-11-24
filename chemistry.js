@@ -68,7 +68,20 @@ export const COMPOUNDS = [
   compound('SO2','Sulfur dioxide','SO₂','Sulfur chemistry','gas',{formulaAscii:'SO2'}),
   compound('H2SO3','Sulfurous acid','H₂SO₃','Sulfur chemistry','liquid',{formulaAscii:'H2SO3',miscibleGroup:'polar'}),
   compound('SiO2','Silicon dioxide','SiO₂','Silicon chemistry','solid',{formulaAscii:'SiO2'}),
-  compound('Si','Silicon','Si','Elements and materials','solid')
+  compound('Si','Silicon','Si','Elements and materials','solid'),
+  compound('K2O','Potassium oxide','K₂O','Oxides','solid',{formulaAscii:'K2O'}),
+  compound('Na2O','Sodium oxide','Na₂O','Oxides','solid',{formulaAscii:'Na2O'}),
+  compound('CaOH2','Calcium hydroxide','Ca(OH)₂','Acids and bases','solid',{formulaAscii:'Ca(OH)2',form:'powder'}),
+  compound('SO3','Sulfur trioxide','SO₃','Sulfur chemistry','gas',{formulaAscii:'SO3'}),
+  compound('N2O5','Dinitrogen pentoxide','N₂O₅','Nitrogen chemistry','solid',{formulaAscii:'N2O5'}),
+  compound('Na2SO3','Sodium sulfite','Na₂SO₃','Salts','solid',{formulaAscii:'Na2SO3'}),
+  compound('Cl2','Chlorine','Cl₂','Halogen chemistry','gas',{formulaAscii:'Cl2'}),
+  compound('FeCl2','Iron(II) chloride','FeCl₂','Salts','solid',{formulaAscii:'FeCl2'}),
+  compound('Al2SO43','Aluminium sulfate','Al₂(SO₄)₃','Salts','solid',{formulaAscii:'Al2(SO4)3'}),
+  compound('ZnO','Zinc oxide','ZnO','Oxides','solid'),
+  compound('NaBr','Sodium bromide','NaBr','Salts','solid'),
+  compound('AgBr','Silver bromide','AgBr','Reaction products','solid',{color:'#f4efd1'}),
+  compound('BaNO32','Barium nitrate','Ba(NO₃)₂','Salts','solid',{formulaAscii:'Ba(NO3)2'})
 ];
 
 const MATERIAL_OVERRIDES = { H2O:{representation:'liquid',viscosity:.90,miscibleGroup:'polar',dropletCount:5}, C2H5OH:{representation:'liquid',viscosity:1.07,miscibleGroup:'polar',dropletCount:5}, HCl:{representation:'liquid',viscosity:1.05,miscibleGroup:'polar',dropletCount:5}, NaCl:{representation:'crystal',friction:.55,restitution:.13}, CaCO3:{representation:'powder',friction:.78,restitution:.04}, CO2:{representation:'gas-cloud',diffusion:1.2}, H2:{representation:'gas-cloud',diffusion:2.4}, NH3:{representation:'gas-cloud',diffusion:1.8}, O2:{representation:'gas-cloud',diffusion:1.1}, N2:{representation:'gas-cloud',diffusion:1.15} };
@@ -79,6 +92,7 @@ export function materialProfile(material) {
 }
 
 const ordinary = ({temperatureK=293}) => temperatureK >= 260 && temperatureK <= 500;
+const ambient = ({temperatureK=293}) => temperatureK >= 260 && temperatureK <= 340;
 const heated = ({temperatureK=293}) => temperatureK >= 450;
 const stronglyHeated = ({temperatureK=293}) => temperatureK >= 700;
 const pressurized = ({temperatureK=293,pressureAtm=1}) => temperatureK >= 450 && pressureAtm >= 5;
@@ -115,15 +129,35 @@ export const REACTION_RULES = [
   rule('sulfur-oxidation','oxidation',{S:1,O2:1},{SO2:1},'S + O₂ → SO₂',{condition:heated,temperatureDeltaK:16}),
   rule('sulfur-dioxide-hydration','hydrolysis',{SO2:1,H2O:1},{H2SO3:1},'SO₂ + H₂O → H₂SO₃'),
   rule('limestone-decomposition','decomposition',{CaCO3:1},{CaO:1,CO2:1},'CaCO₃ → CaO + CO₂↑',{condition:stronglyHeated,temperatureDeltaK:-15}),
-  rule('peroxide-decomposition','decomposition',{H2O2:2},{H2O:2,O2:1},'2H₂O₂ → 2H₂O + O₂↑',{observable:'oxygen gas marker'}),
+  rule('peroxide-decomposition','decomposition',{H2O2:2},{H2O:2,O2:1},'2H₂O₂ → 2H₂O + O₂↑',{condition:heated,observable:'oxygen gas marker'}),
   rule('chlorate-decomposition','decomposition',{KClO3:2},{KCl:2,O2:3},'2KClO₃ → 2KCl + 3O₂↑',{condition:stronglyHeated,temperatureDeltaK:-20}),
   rule('water-gas-reduction','reduction',{Fe2O3:1,CO:3},{Fe:2,CO2:3},'Fe₂O₃ + 3CO → 2Fe + 3CO₂',{condition:stronglyHeated,temperatureDeltaK:-8}),
   rule('ethene-hydrogenation','addition',{C2H4:1,H2:1},{C2H6:1},'C₂H₄ + H₂ → C₂H₆',{condition:heated,temperatureDeltaK:6}),
   rule('ethene-hydration','addition',{C2H4:1,H2O:1},{C2H5OH:1},'C₂H₄ + H₂O → C₂H₅OH',{condition:heated,temperatureDeltaK:2}),
   rule('esterification','condensation',{CH3COOH:1,C2H5OH:1},{CH3COOC2H5:1,H2O:1},'CH₃COOH + C₂H₅OH → CH₃COOC₂H₅ + H₂O',{condition:heated,temperatureDeltaK:1}),
-  rule('glucose-fermentation','biochemistry-inspired',{C6H12O6:1},{C2H5OH:2,CO2:2},'C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂↑',{condition:ordinary,temperatureDeltaK:1}),
+  rule('glucose-fermentation','biochemistry-inspired',{C6H12O6:1},{C2H5OH:2,CO2:2},'C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂↑',{condition:ambient,temperatureDeltaK:1}),
   rule('ammonia-synthesis','synthesis',{N2:1,H2:3},{NH3:2},'N₂ + 3H₂ → 2NH₃',{condition:pressurized,temperatureDeltaK:12,limitations:'Virtual high-pressure synthesis representation; no real-world procedure is modeled.'}),
   rule('silica-reduction','reduction',{SiO2:1,C:2},{Si:1,CO:2},'SiO₂ + 2C → Si + 2CO',{condition:stronglyHeated,temperatureDeltaK:-12}),
+  rule('sodium-oxide-hydration','oxide hydration',{Na2O:1,H2O:1},{NaOH:2},'Na₂O + H₂O → 2NaOH',{temperatureDeltaK:8}),
+  rule('potassium-oxide-hydration','oxide hydration',{K2O:1,H2O:1},{KOH:2},'K₂O + H₂O → 2KOH',{temperatureDeltaK:8}),
+  rule('calcium-oxide-hydration','oxide hydration',{CaO:1,H2O:1},{CaOH2:1},'CaO + H₂O → Ca(OH)₂',{temperatureDeltaK:6}),
+  rule('sulfur-trioxide-hydration','acid-anhydride hydration',{SO3:1,H2O:1},{H2SO4:1},'SO₃ + H₂O → H₂SO₄'),
+  rule('dinitrogen-pentoxide-hydration','acid-anhydride hydration',{N2O5:1,H2O:1},{HNO3:2},'N₂O₅ + H₂O → 2HNO₃'),
+  rule('carbon-dioxide-limewater','carbonate formation',{CO2:1,CaOH2:1},{CaCO3:1,H2O:1},'CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O',{observable:'carbonate precipitate marker'}),
+  rule('sulfur-dioxide-base-absorption','acid-base',{SO2:1,NaOH:2},{Na2SO3:1,H2O:1},'SO₂ + 2NaOH → Na₂SO₃ + H₂O'),
+  rule('carbon-dioxide-base-absorption','acid-base',{CO2:1,NaOH:2},{Na2CO3:1,H2O:1},'CO₂ + 2NaOH → Na₂CO₃ + H₂O'),
+  rule('carbon-monoxide-oxidation','oxidation',{CO:2,O2:1},{CO2:2},'2CO + O₂ → 2CO₂',{condition:heated,temperatureDeltaK:18}),
+  rule('sodium-chlorine-synthesis','halogen synthesis',{Na:2,Cl2:1},{NaCl:2},'2Na + Cl₂ → 2NaCl',{observable:'salt product marker',limitations:'Virtual educational salt-formation event; no real-world procedure is modeled.'}),
+  rule('hydrogen-chlorine-synthesis','halogen synthesis',{H2:1,Cl2:1},{HCl:2},'H₂ + Cl₂ → 2HCl',{condition:heated,limitations:'Virtual educational acid-formation event; no real-world procedure is modeled.'}),
+  rule('iron-acid-displacement','displacement',{Fe:1,HCl:2},{FeCl2:1,H2:1},'Fe + 2HCl → FeCl₂ + H₂↑',{temperatureDeltaK:3}),
+  rule('copper-oxidation','oxidation',{Cu:2,O2:1},{CuO:2},'2Cu + O₂ → 2CuO',{condition:heated,temperatureDeltaK:10}),
+  rule('copper-oxide-carbon-reduction','reduction',{CuO:2,C:1},{Cu:2,CO2:1},'2CuO + C → 2Cu + CO₂',{condition:stronglyHeated,temperatureDeltaK:-8}),
+  rule('zinc-oxide-acid','acid-metal-oxide',{ZnO:1,HCl:2},{ZnCl2:1,H2O:1},'ZnO + 2HCl → ZnCl₂ + H₂O'),
+  rule('magnesium-oxide-acid','acid-metal-oxide',{MgO:1,HCl:2},{MgCl2:1,H2O:1},'MgO + 2HCl → MgCl₂ + H₂O'),
+  rule('sodium-bicarbonate-decomposition','decomposition',{NaHCO3:2},{Na2CO3:1,H2O:1,CO2:1},'2NaHCO₃ → Na₂CO₃ + H₂O + CO₂↑',{condition:heated,temperatureDeltaK:-6}),
+  rule('ethyl-ethanoate-hydrolysis','hydrolysis',{CH3COOC2H5:1,H2O:1},{CH3COOH:1,C2H5OH:1},'CH₃COOC₂H₅ + H₂O → CH₃COOH + C₂H₅OH',{condition:ambient}),
+  rule('silver-bromide-precipitate','precipitation',{AgNO3:1,NaBr:1},{AgBr:1,NaNO3:1},'AgNO₃ + NaBr → AgBr↓ + NaNO₃',{observable:'pale precipitate marker'}),
+  rule('barium-sulfate-nitrate','precipitation',{BaNO32:1,Na2SO4:1},{BaSO4:1,NaNO3:2},'Ba(NO₃)₂ + Na₂SO₄ → BaSO₄↓ + 2NaNO₃',{observable:'white precipitate marker'}),
   rule('salt-dissolution','dissolution',{NaCl:1,H2O:1},{NaCl_aq:1},'NaCl(s) → Na⁺(aq) + Cl⁻(aq)',{preserveReactants:{H2O:1},observable:'dissolved-solute marker in water',limitations:'Carrier water is preserved in the simulation ledger.'})
 ];
 
