@@ -1,6 +1,6 @@
 // Quantity planning is deliberately pure: Matter bodies are updated by game.js only
 // after this routine has accepted a validated, data-driven registry entry.
-import { supportedReaction } from './chemistry.js';
+import { REACTION_RULES } from './chemistry.js';
 
 export function planReaction(rule, availableAmounts = {}) {
   const reactants = rule?.reactantStoichiometry || {};
@@ -21,15 +21,32 @@ export function planReaction(rule, availableAmounts = {}) {
 }
 
 export function findReactionParticipantBodies(bodies, conditions = {}) {
-  for (let first = 0; first < bodies.length; first++) for (let second = first + 1; second < bodies.length; second++) for (let third = second + 1; third < bodies.length; third++) {
-    const group = [bodies[first], bodies[second], bodies[third]];
-    const identities = group.map((body) => Object.keys(body?.plugin?.sample?.ledger?.components || {}));
-    for (const firstId of identities[0]) for (const secondId of identities[1]) for (const thirdId of identities[2]) {
-      const rule = supportedReaction([firstId, secondId, thirdId], conditions);
-      if (rule?.reactants.length === 3) return { rule, participants:[
-        { body:group[0], materialId:firstId }, { body:group[1], materialId:secondId }, { body:group[2], materialId:thirdId }
-      ] };
+  const available = {};
+  for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
+  for (const rule of REACTION_RULES) {
+    if (rule.reactants.length < 3 || !rule.condition(conditions)) continue;
+    const plan = planReaction(rule, available);
+    if (plan.extent <= 1e-9) continue;
+    const allocations = new Map();
+    let complete = true;
+    for (const [id, coefficient] of Object.entries(rule.reactantStoichiometry)) {
+      const sources = bodies.filter((body) => (Number(body?.plugin?.sample?.ledger?.components?.[id]) || 0) > 1e-9);
+      if (!sources.length) { complete = false; break; }
+      if (rule.preserveReactants?.[id]) {
+        allocations.set(sources[0], { ...(allocations.get(sources[0]) || {}), [id]:0 });
+        continue;
+      }
+      let required = coefficient * plan.extent;
+      for (const body of sources) {
+        const amount = Number(body.plugin.sample.ledger.components[id]) || 0;
+        const consumed = Math.min(amount, required);
+        if (consumed > 1e-9) allocations.set(body, { ...(allocations.get(body) || {}), [id]:consumed });
+        required -= consumed;
+        if (required <= 1e-9) break;
+      }
+      if (required > 1e-9) { complete = false; break; }
     }
+    if (complete) return { rule, extent:plan.extent, plan, participants:[...allocations].map(([body, consumptions]) => ({ body, consumptions })) };
   }
   return null;
 }

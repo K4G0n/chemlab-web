@@ -23,7 +23,7 @@ test('reaction plan rejects missing or insufficient named reactants', () => {
   assert.equal(planReaction(byId('hcl-naoh'), { HCl:1 }).extent, 0);
 });
 
-test('participant matching requires three distinct nearby bodies for a three-reactant rule', () => {
+test('participant matching schedules three-reactant rules across distinct nearby bodies', () => {
   const bodies = [
     { id:'ethene-body', position:{x:0,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{C2H4:1}}}} },
     { id:'water-body', position:{x:22,y:4}, plugin:{sample:{temperatureK:480, ledger:{components:{H2O:2}}}} },
@@ -31,7 +31,23 @@ test('participant matching requires three distinct nearby bodies for a three-rea
   ];
   const match = findReactionParticipantBodies(bodies, { temperatureK:480, pressureAtm:1 });
   assert.equal(match?.rule.id, 'ethene-hydration-acid-catalyzed');
-  assert.deepEqual(match?.participants.map(({ body, materialId }) => [body.id, materialId]), [
-    ['ethene-body', 'C2H4'], ['water-body', 'H2O'], ['acid-body', 'H2SO4']
+  assert.equal(match?.extent, 1);
+  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]), [
+    ['ethene-body', { C2H4:1 }], ['water-body', { H2O:1 }], ['acid-body', { H2SO4:0 }]
+  ]);
+});
+
+test('participant scheduling consumes a reactant identity across multiple nearby bodies', () => {
+  const bodies = [
+    { id:'acid-first', position:{x:0,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{CH3COOH:.25}}}} },
+    { id:'acid-second', position:{x:12,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{CH3COOH:.75}}}} },
+    { id:'ethanol', position:{x:25,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{C2H5OH:1}}}} },
+    { id:'catalyst', position:{x:38,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{H2SO4:1}}}} }
+  ];
+  const match = findReactionParticipantBodies(bodies, { temperatureK:480, pressureAtm:1 });
+  assert.equal(match?.rule.id, 'esterification-acid-catalyzed');
+  assert.equal(match?.extent, 1);
+  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]), [
+    ['acid-first', { CH3COOH:.25 }], ['acid-second', { CH3COOH:.75 }], ['ethanol', { C2H5OH:1 }], ['catalyst', { H2SO4:0 }]
   ]);
 });
