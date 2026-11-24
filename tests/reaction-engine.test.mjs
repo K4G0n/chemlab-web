@@ -65,3 +65,15 @@ test('participant scheduling can combine binary reactants distributed over nearb
     ['acid-first', { HCl:1 }], ['acid-second', { HCl:1 }], ['carbonate', { Na2CO3:1 }]
   ]);
 });
+
+test('participant scheduling ignores isolated contributors and uses one connected local cluster', () => {
+  const bodies = [
+    { id:'acid-local', position:{x:0,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} },
+    { id:'carbonate-local', position:{x:28,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{Na2CO3:1}}}} },
+    { id:'acid-isolated', position:{x:180,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} }
+  ];
+  const match = findReactionParticipantBodies(bodies, { temperatureK:293, pressureAtm:1 });
+  assert.equal(match?.rule.id, 'hcl-sodium-carbonate');
+  assert.equal(match?.extent, .5);
+  assert.deepEqual(match?.participants.map(({ body }) => body.id), ['acid-local', 'carbonate-local']);
+});

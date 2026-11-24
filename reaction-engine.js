@@ -20,7 +20,36 @@ export function planReaction(rule, availableAmounts = {}) {
   return { extent, remaining, products };
 }
 
-export function findReactionParticipantBodies(bodies, conditions = {}) {
+function squaredDistance(left, right) {
+  const dx = Number(left?.position?.x) - Number(right?.position?.x);
+  const dy = Number(left?.position?.y) - Number(right?.position?.y);
+  return Number.isFinite(dx) && Number.isFinite(dy) ? dx * dx + dy * dy : Infinity;
+}
+
+export function connectedBodyClusters(bodies, neighborDistance = 72) {
+  const remaining = new Set(bodies);
+  const clusters = [];
+  const limitSquared = neighborDistance * neighborDistance;
+  while (remaining.size) {
+    const cluster = [];
+    const queue = [remaining.values().next().value];
+    remaining.delete(queue[0]);
+    while (queue.length) {
+      const body = queue.shift();
+      cluster.push(body);
+      for (const candidate of [...remaining]) {
+        if (squaredDistance(body, candidate) <= limitSquared) {
+          remaining.delete(candidate);
+          queue.push(candidate);
+        }
+      }
+    }
+    clusters.push(cluster);
+  }
+  return clusters;
+}
+
+function findReactionInCluster(bodies, conditions) {
   const available = {};
   for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
   for (const rule of REACTION_RULES) {
@@ -47,6 +76,14 @@ export function findReactionParticipantBodies(bodies, conditions = {}) {
       if (required > 1e-9) { complete = false; break; }
     }
     if (complete) return { rule, extent:plan.extent, plan, participants:[...allocations].map(([body, consumptions]) => ({ body, consumptions })) };
+  }
+  return null;
+}
+
+export function findReactionParticipantBodies(bodies, conditions = {}, neighborDistance = 72) {
+  for (const cluster of connectedBodyClusters(bodies, neighborDistance)) {
+    const match = findReactionInCluster(cluster, conditions);
+    if (match) return match;
   }
   return null;
 }
