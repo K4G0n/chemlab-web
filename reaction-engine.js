@@ -49,6 +49,12 @@ export function connectedBodyClusters(bodies, neighborDistance = 72) {
   return clusters;
 }
 
+function localPartnerCenter(bodies, materialId, reactants) {
+  const partners = bodies.filter((body) => Object.keys(reactants).some((id) => id !== materialId && (Number(body?.plugin?.sample?.ledger?.components?.[id]) || 0) > 1e-9));
+  if (!partners.length) return null;
+  return { position: partners.reduce((total, body) => ({ x:total.x + body.position.x / partners.length, y:total.y + body.position.y / partners.length }), { x:0, y:0 }) };
+}
+
 function findReactionInCluster(bodies, conditions) {
   const available = {};
   for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
@@ -59,7 +65,10 @@ function findReactionInCluster(bodies, conditions) {
     const allocations = new Map();
     let complete = true;
     for (const [id, coefficient] of Object.entries(rule.reactantStoichiometry)) {
-      const sources = bodies.filter((body) => (Number(body?.plugin?.sample?.ledger?.components?.[id]) || 0) > 1e-9);
+      const center = localPartnerCenter(bodies, id, rule.reactantStoichiometry);
+      const sources = bodies
+        .filter((body) => (Number(body?.plugin?.sample?.ledger?.components?.[id]) || 0) > 1e-9)
+        .sort((left, right) => squaredDistance(left, center) - squaredDistance(right, center));
       if (!sources.length) { complete = false; break; }
       if (rule.preserveReactants?.[id]) {
         allocations.set(sources[0], { ...(allocations.get(sources[0]) || {}), [id]:0 });

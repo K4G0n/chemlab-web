@@ -47,8 +47,8 @@ test('participant scheduling consumes a reactant identity across multiple nearby
   const match = findReactionParticipantBodies(bodies, { temperatureK:480, pressureAtm:1 });
   assert.equal(match?.rule.id, 'esterification-acid-catalyzed');
   assert.equal(match?.extent, 1);
-  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]), [
-    ['acid-first', { CH3COOH:.25 }], ['acid-second', { CH3COOH:.75 }], ['ethanol', { C2H5OH:1 }], ['catalyst', { H2SO4:0 }]
+  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]).sort(([left], [right]) => left.localeCompare(right)), [
+    ['acid-first', { CH3COOH:.25 }], ['acid-second', { CH3COOH:.75 }], ['catalyst', { H2SO4:0 }], ['ethanol', { C2H5OH:1 }]
   ]);
 });
 
@@ -61,7 +61,7 @@ test('participant scheduling can combine binary reactants distributed over nearb
   const match = findReactionParticipantBodies(bodies, { temperatureK:293, pressureAtm:1 });
   assert.equal(match?.rule.id, 'hcl-sodium-carbonate');
   assert.equal(match?.extent, 1);
-  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]), [
+  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]).sort(([left], [right]) => left.localeCompare(right)), [
     ['acid-first', { HCl:1 }], ['acid-second', { HCl:1 }], ['carbonate', { Na2CO3:1 }]
   ]);
 });
@@ -76,4 +76,18 @@ test('participant scheduling ignores isolated contributors and uses one connecte
   assert.equal(match?.rule.id, 'hcl-sodium-carbonate');
   assert.equal(match?.extent, .5);
   assert.deepEqual(match?.participants.map(({ body }) => body.id), ['acid-local', 'carbonate-local']);
+});
+
+test('participant scheduling allocates distributed reactants nearest to their local partners', () => {
+  const bodies = [
+    { id:'acid-far', position:{x:0,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} },
+    { id:'carbonate', position:{x:50,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{Na2CO3:.5}}}} },
+    { id:'acid-near', position:{x:36,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} }
+  ];
+  const match = findReactionParticipantBodies(bodies, { temperatureK:293, pressureAtm:1 });
+  assert.equal(match?.rule.id, 'hcl-sodium-carbonate');
+  assert.equal(match?.extent, .5);
+  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]), [
+    ['acid-near', { HCl:1 }], ['carbonate', { Na2CO3:.5 }]
+  ]);
 });
