@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { REACTION_RULES, reactionCoverage, supportedReaction, validateReactionRegistry } from '../chemistry.js';
+import { REACTION_RULES, reactionCoverage, supportedReaction, supportedUnaryReaction, validateReactionRegistry } from '../chemistry.js';
 
 test('reaction registry uses unique structured entries and validates atom conservation', () => {
   const validation = validateReactionRegistry();
@@ -29,4 +29,9 @@ test('reaction lookup remains order independent but rejects unmatched identities
   assert.equal(supportedReaction(['NaOH', 'HCl'], { temperatureK:293, pressureAtm:1 })?.id, 'hcl-naoh');
   assert.equal(supportedReaction(['Au', 'H2O'], { temperatureK:293, pressureAtm:1 }), null);
   assert.equal(supportedReaction(['Na', 'H2O'], { temperatureK:700, pressureAtm:1 }), null);
+});
+
+test('unary decomposition rules are independently indexed and condition-gated', () => {
+  assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:293, pressureAtm:1 }), null);
+  assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:850, pressureAtm:1 })?.id, 'limestone-decomposition');
 });

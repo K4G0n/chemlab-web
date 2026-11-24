@@ -161,8 +161,16 @@ export function reactionCoverage() {
   const families=[...new Set(REACTION_RULES.map(rule => rule.category))].sort();
   return { total:REACTION_RULES.length, validated:REACTION_RULES.filter(rule => rule.validation === 'balanced').length, normalMode:REACTION_RULES.filter(rule => rule.modes.includes('normal')).length, quantumMode:REACTION_RULES.filter(rule => rule.modes.includes('quantum')).length, families, incomplete:REACTION_RULES.filter(rule => rule.validation !== 'balanced').length };
 }
+const reactionIndex = new Map();
+for (const reaction of REACTION_RULES) {
+  const key = [...reaction.reactants].sort().join('|');
+  if (!reactionIndex.has(key)) reactionIndex.set(key, []);
+  reactionIndex.get(key).push(reaction);
+}
 export function supportedReaction(symbols, conditions = {}) {
   const key = [...symbols].sort().join('|');
-  const rule = REACTION_RULES.find(candidate => [...candidate.reactants].sort().join('|') === key && candidate.condition(conditions));
-  return rule ? { ...rule } : null;
+  return (reactionIndex.get(key) || []).find(candidate => candidate.condition(conditions)) || null;
+}
+export function supportedUnaryReaction(symbol, conditions = {}) {
+  return (reactionIndex.get(symbol) || []).find(candidate => candidate.reactants.length === 1 && candidate.condition(conditions)) || null;
 }
