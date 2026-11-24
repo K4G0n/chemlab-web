@@ -97,7 +97,9 @@ export const COMPOUNDS = [
   compound('CaSO3','Calcium sulfite','CaSO₃','Salts','solid',{formulaAscii:'CaSO3'}),
   compound('ZnBr2','Zinc bromide','ZnBr₂','Salts','solid',{formulaAscii:'ZnBr2'}),
   compound('MgBr2','Magnesium bromide','MgBr₂','Salts','solid',{formulaAscii:'MgBr2'}),
-  compound('FeNO32','Iron(II) nitrate','Fe(NO₃)₂','Salts','solid',{formulaAscii:'Fe(NO3)2'})
+  compound('FeNO32','Iron(II) nitrate','Fe(NO₃)₂','Salts','solid',{formulaAscii:'Fe(NO3)2'}),
+  compound('NaI','Sodium iodide','NaI','Salts','solid'),
+  compound('K2SO4','Potassium sulfate','K₂SO₄','Salts','solid',{formulaAscii:'K2SO4'})
 ];
 
 const MATERIAL_OVERRIDES = { H2O:{representation:'liquid',viscosity:.90,miscibleGroup:'polar',dropletCount:5}, C2H5OH:{representation:'liquid',viscosity:1.07,miscibleGroup:'polar',dropletCount:5}, HCl:{representation:'liquid',viscosity:1.05,miscibleGroup:'polar',dropletCount:5}, NaCl:{representation:'crystal',friction:.55,restitution:.13}, CaCO3:{representation:'powder',friction:.78,restitution:.04}, CO2:{representation:'gas-cloud',diffusion:1.2}, H2:{representation:'gas-cloud',diffusion:2.4}, NH3:{representation:'gas-cloud',diffusion:1.8}, O2:{representation:'gas-cloud',diffusion:1.1}, N2:{representation:'gas-cloud',diffusion:1.15} };
@@ -197,7 +199,12 @@ export const REACTION_RULES = [
   rule('magnesium-hydrobromic-displacement','displacement',{Mg:1,HBr:2},{MgBr2:1,H2:1},'Mg + 2HBr → MgBr₂ + H₂↑',{temperatureDeltaK:6}),
   rule('aluminium-copper-chloride-displacement','displacement',{Al:2,CuCl2:3},{AlCl3:2,Cu:3},'2Al + 3CuCl₂ → 2AlCl₃ + 3Cu',{temperatureDeltaK:5}),
   rule('iron-silver-nitrate-displacement','displacement',{Fe:1,AgNO3:2},{FeNO32:1,Ag:2},'Fe + 2AgNO₃ → Fe(NO₃)₂ + 2Ag',{temperatureDeltaK:2}),
-  rule('salt-dissolution','dissolution',{NaCl:1,H2O:1},{NaCl_aq:1},'NaCl(s) → Na⁺(aq) + Cl⁻(aq)',{preserveReactants:{H2O:1},observable:'dissolved-solute marker in water',limitations:'Carrier water is preserved in the simulation ledger.'})
+  rule('salt-dissolution','dissolution',{NaCl:1,H2O:1},{NaCl_aq:1},'NaCl(s) → Na⁺(aq) + Cl⁻(aq)',{preserveReactants:{H2O:1},observable:'dissolved-solute marker in water',limitations:'Carrier water is preserved in the simulation ledger.'}),
+  rule('hcl-potassium-hydroxide','neutralization',{HCl:1,KOH:1},{KCl:1,H2O:1},'HCl + KOH → KCl + H₂O',{temperatureDeltaK:7}),
+  rule('hbr-potassium-hydroxide','neutralization',{HBr:1,KOH:1},{KBr:1,H2O:1},'HBr + KOH → KBr + H₂O',{temperatureDeltaK:7}),
+  rule('hi-sodium-hydroxide','neutralization',{HI:1,NaOH:1},{NaI:1,H2O:1},'HI + NaOH → NaI + H₂O',{temperatureDeltaK:7}),
+  rule('hno3-sodium-hydroxide','neutralization',{HNO3:1,NaOH:1},{NaNO3:1,H2O:1},'HNO₃ + NaOH → NaNO₃ + H₂O',{temperatureDeltaK:7}),
+  rule('h2so4-potassium-hydroxide','neutralization',{H2SO4:1,KOH:2},{K2SO4:1,H2O:2},'H₂SO₄ + 2KOH → K₂SO₄ + 2H₂O',{temperatureDeltaK:10})
 ];
 
 function normalizeFormula(formula) {
