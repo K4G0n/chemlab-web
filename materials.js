@@ -44,3 +44,21 @@ export function combineSamples(left, right) {
     components
   };
 }
+
+export function consumeSample(sample, consumedAmount) {
+  const amount = Math.max(0, sample.amount - Math.max(0, consumedAmount));
+  const ratio = sample.amount > 0 ? amount / sample.amount : 0;
+  return {
+    ...sample,
+    amount,
+    components: Object.fromEntries(Object.entries(sample.components).map(([id, value]) => [id, value * ratio]))
+  };
+}
+
+export function limitingExtent(availableAmounts, coefficients) {
+  const extents = Object.entries(coefficients).map(([id, coefficient]) => {
+    const amount = Number(availableAmounts[id]) || 0;
+    return coefficient > 0 ? amount / coefficient : Infinity;
+  });
+  return extents.length ? Math.max(0, Math.min(...extents)) : 0;
+}
