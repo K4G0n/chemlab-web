@@ -49,10 +49,42 @@ export function connectedBodyClusters(bodies, neighborDistance = 72) {
   return clusters;
 }
 
-function localPartnerCenter(bodies, materialId, reactants) {
-  const partners = bodies.filter((body) => Object.keys(reactants).some((id) => id !== materialId && (Number(body?.plugin?.sample?.ledger?.components?.[id]) || 0) > 1e-9));
-  if (!partners.length) return null;
-  return { position: partners.reduce((total, body) => ({ x:total.x + body.position.x / partners.length, y:total.y + body.position.y / partners.length }), { x:0, y:0 }) };
+export function allocateCompactParticipants(bodies, reactants, extent, preserveReactants = {}) {
+  if (!(extent > 1e-9)) return null;
+  let best = null;
+  for (const anchor of bodies) {
+    const allocations = new Map();
+    let cost = 0;
+    let complete = true;
+    for (const [id, coefficient] of Object.entries(reactants)) {
+      const sources = bodies
+        .filter((body) => (Number(body?.plugin?.sample?.ledger?.components?.[id]) || 0) > 1e-9)
+        .sort((left, right) => squaredDistance(left, anchor) - squaredDistance(right, anchor));
+      if (!sources.length) { complete = false; break; }
+      if (preserveReactants[id]) {
+        const source = sources[0];
+        allocations.set(source, { ...(allocations.get(source) || {}), [id]:0 });
+        cost += squaredDistance(source, anchor);
+        continue;
+      }
+      let required = coefficient * extent;
+      for (const body of sources) {
+        const amount = Number(body.plugin.sample.ledger.components[id]) || 0;
+        const consumed = Math.min(amount, required);
+        if (consumed > 1e-9) {
+          allocations.set(body, { ...(allocations.get(body) || {}), [id]:consumed });
+          cost += consumed * squaredDistance(body, anchor);
+        }
+        required -= consumed;
+        if (required <= 1e-9) break;
+      }
+      if (required > 1e-9) { complete = false; break; }
+    }
+    if (!complete) continue;
+    const candidate = { cost, participants:[...allocations].map(([body, consumptions]) => ({ body, consumptions })) };
+    if (!best || candidate.cost < best.cost) best = candidate;
+  }
+  return best?.participants || null;
 }
 
 function findReactionInCluster(bodies, conditions) {
@@ -62,29 +94,8 @@ function findReactionInCluster(bodies, conditions) {
     if (rule.reactants.length < 2 || !rule.condition(conditions)) continue;
     const plan = planReaction(rule, available);
     if (plan.extent <= 1e-9) continue;
-    const allocations = new Map();
-    let complete = true;
-    for (const [id, coefficient] of Object.entries(rule.reactantStoichiometry)) {
-      const center = localPartnerCenter(bodies, id, rule.reactantStoichiometry);
-      const sources = bodies
-        .filter((body) => (Number(body?.plugin?.sample?.ledger?.components?.[id]) || 0) > 1e-9)
-        .sort((left, right) => squaredDistance(left, center) - squaredDistance(right, center));
-      if (!sources.length) { complete = false; break; }
-      if (rule.preserveReactants?.[id]) {
-        allocations.set(sources[0], { ...(allocations.get(sources[0]) || {}), [id]:0 });
-        continue;
-      }
-      let required = coefficient * plan.extent;
-      for (const body of sources) {
-        const amount = Number(body.plugin.sample.ledger.components[id]) || 0;
-        const consumed = Math.min(amount, required);
-        if (consumed > 1e-9) allocations.set(body, { ...(allocations.get(body) || {}), [id]:consumed });
-        required -= consumed;
-        if (required <= 1e-9) break;
-      }
-      if (required > 1e-9) { complete = false; break; }
-    }
-    if (complete) return { rule, extent:plan.extent, plan, participants:[...allocations].map(([body, consumptions]) => ({ body, consumptions })) };
+    const participants = allocateCompactParticipants(bodies, rule.reactantStoichiometry, plan.extent, rule.preserveReactants);
+    if (participants) return { rule, extent:plan.extent, plan, participants };
   }
   return null;
 }

@@ -1,9 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { findReactionParticipantBodies, planReaction } from '../reaction-engine.js';
+import { allocateCompactParticipants, findReactionParticipantBodies, planReaction } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
+
+test('compact participant allocation selects one shared local source group for multi-reactant rules', () => {
+  const bodies = [
+    { id:'left-acid', position:{x:0,y:0}, plugin:{sample:{ledger:{components:{HCl:1}}}} },
+    { id:'left-base', position:{x:4,y:0}, plugin:{sample:{ledger:{components:{NaOH:1}}}} },
+    { id:'left-catalyst', position:{x:8,y:0}, plugin:{sample:{ledger:{components:{H2SO4:1}}}} },
+    { id:'right-acid', position:{x:100,y:0}, plugin:{sample:{ledger:{components:{HCl:1}}}} },
+    { id:'right-base', position:{x:104,y:0}, plugin:{sample:{ledger:{components:{NaOH:1}}}} },
+    { id:'right-catalyst', position:{x:108,y:0}, plugin:{sample:{ledger:{components:{H2SO4:1}}}} }
+  ];
+  const participants = allocateCompactParticipants(bodies, { HCl:1, NaOH:1, H2SO4:1 }, 1, { H2SO4:1 });
+  assert.deepEqual(participants?.map(({ body, consumptions }) => [body.id, consumptions]), [
+    ['left-acid', { HCl:1 }], ['left-base', { NaOH:1 }], ['left-catalyst', { H2SO4:0 }]
+  ]);
+});
 
 test('reaction plan applies stoichiometric coefficients and leaves excess reactant', () => {
   const plan = planReaction(byId('sodium-water'), { Na:3, H2O:10 });
