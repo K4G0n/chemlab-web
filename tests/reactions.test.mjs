@@ -47,3 +47,17 @@ test('alkali neutralization family provides distinct balanced halide and sulfate
   assert.equal(spawnableIds.has('NaI'), true);
   assert.equal(spawnableIds.has('K2SO4'), true);
 });
+
+test('three-reactant acid-catalyzed hydration is condition-gated and preserves its catalyst', () => {
+  const ordinaryConditions = { temperatureK:293, pressureAtm:1 };
+  const heatedConditions = { temperatureK:480, pressureAtm:1 };
+  assert.equal(supportedReaction(['C2H4', 'H2O', 'H2SO4'], ordinaryConditions), null);
+  const rule = supportedReaction(['H2SO4', 'C2H4', 'H2O'], heatedConditions);
+  assert.equal(rule?.id, 'ethene-hydration-acid-catalyzed');
+  assert.deepEqual(rule?.preserveReactants, { H2SO4:1 });
+});
+
+test('uncatalyzed ethene hydration remains pressure-gated so catalyst-aware play can select the ternary rule', () => {
+  assert.equal(supportedReaction(['C2H4', 'H2O'], { temperatureK:480, pressureAtm:1 }), null);
+  assert.equal(supportedReaction(['C2H4', 'H2O'], { temperatureK:480, pressureAtm:5 })?.id, 'ethene-hydration');
+});
