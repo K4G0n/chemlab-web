@@ -61,3 +61,12 @@ test('uncatalyzed ethene hydration remains pressure-gated so catalyst-aware play
   assert.equal(supportedReaction(['C2H4', 'H2O'], { temperatureK:480, pressureAtm:1 }), null);
   assert.equal(supportedReaction(['C2H4', 'H2O'], { temperatureK:480, pressureAtm:5 })?.id, 'ethene-hydration');
 });
+
+test('acid-catalyzed esterification is selected at simulated heat while its uncatalyzed counterpart remains more restrictive', () => {
+  const heatedConditions = { temperatureK:480, pressureAtm:1 };
+  assert.equal(supportedReaction(['CH3COOH', 'C2H5OH'], heatedConditions), null);
+  const rule = supportedReaction(['H2SO4', 'CH3COOH', 'C2H5OH'], heatedConditions);
+  assert.equal(rule?.id, 'esterification-acid-catalyzed');
+  assert.deepEqual(rule?.preserveReactants, { H2SO4:1 });
+  assert.equal(supportedReaction(['CH3COOH', 'C2H5OH'], { temperatureK:720, pressureAtm:1 })?.id, 'esterification');
+});

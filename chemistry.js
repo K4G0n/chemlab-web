@@ -152,7 +152,7 @@ export const REACTION_RULES = [
   rule('water-gas-reduction','reduction',{Fe2O3:1,CO:3},{Fe:2,CO2:3},'Fe₂O₃ + 3CO → 2Fe + 3CO₂',{condition:stronglyHeated,temperatureDeltaK:-8}),
   rule('ethene-hydrogenation','addition',{C2H4:1,H2:1},{C2H6:1},'C₂H₄ + H₂ → C₂H₆',{condition:heated,temperatureDeltaK:6}),
   rule('ethene-hydration','addition',{C2H4:1,H2O:1},{C2H5OH:1},'C₂H₄ + H₂O → C₂H₅OH',{condition:pressurized,temperatureDeltaK:2,limitations:'Virtual high-pressure hydration representation; no real-world procedure is modeled.'}),
-  rule('esterification','condensation',{CH3COOH:1,C2H5OH:1},{CH3COOC2H5:1,H2O:1},'CH₃COOH + C₂H₅OH → CH₃COOC₂H₅ + H₂O',{condition:heated,temperatureDeltaK:1}),
+  rule('esterification','condensation',{CH3COOH:1,C2H5OH:1},{CH3COOC2H5:1,H2O:1},'CH₃COOH + C₂H₅OH → CH₃COOC₂H₅ + H₂O',{condition:stronglyHeated,temperatureDeltaK:1,limitations:'Virtual high-temperature condensation representation; no real-world procedure is modeled.'}),
   rule('glucose-fermentation','biochemistry-inspired',{C6H12O6:1},{C2H5OH:2,CO2:2},'C₆H₁₂O₆ → 2C₂H₅OH + 2CO₂↑',{condition:ambient,temperatureDeltaK:1}),
   rule('ammonia-synthesis','synthesis',{N2:1,H2:3},{NH3:2},'N₂ + 3H₂ → 2NH₃',{condition:pressurized,temperatureDeltaK:12,limitations:'Virtual high-pressure synthesis representation; no real-world procedure is modeled.'}),
   rule('silica-reduction','reduction',{SiO2:1,C:2},{Si:1,CO:2},'SiO₂ + 2C → Si + 2CO',{condition:stronglyHeated,temperatureDeltaK:-12}),
@@ -205,7 +205,8 @@ export const REACTION_RULES = [
   rule('hi-sodium-hydroxide','neutralization',{HI:1,NaOH:1},{NaI:1,H2O:1},'HI + NaOH → NaI + H₂O',{temperatureDeltaK:7}),
   rule('hno3-sodium-hydroxide','neutralization',{HNO3:1,NaOH:1},{NaNO3:1,H2O:1},'HNO₃ + NaOH → NaNO₃ + H₂O',{temperatureDeltaK:7}),
   rule('h2so4-potassium-hydroxide','neutralization',{H2SO4:1,KOH:2},{K2SO4:1,H2O:2},'H₂SO₄ + 2KOH → K₂SO₄ + 2H₂O',{temperatureDeltaK:10}),
-  rule('ethene-hydration-acid-catalyzed','catalyzed addition',{C2H4:1,H2O:1,H2SO4:1},{C2H5OH:1},'C₂H₄ + H₂O —(simulated acid catalyst, heat)→ C₂H₅OH',{condition:heated,preserveReactants:{H2SO4:1},temperatureDeltaK:2,observable:'ethanol product marker',limitations:'Virtual educational catalysis event; sulfuric acid is preserved as a catalyst and no real-world procedure is modeled.'})
+  rule('ethene-hydration-acid-catalyzed','catalyzed addition',{C2H4:1,H2O:1,H2SO4:1},{C2H5OH:1},'C₂H₄ + H₂O —(simulated acid catalyst, heat)→ C₂H₅OH',{condition:heated,preserveReactants:{H2SO4:1},temperatureDeltaK:2,observable:'ethanol product marker',limitations:'Virtual educational catalysis event; sulfuric acid is preserved as a catalyst and no real-world procedure is modeled.'}),
+  rule('esterification-acid-catalyzed','catalyzed condensation',{CH3COOH:1,C2H5OH:1,H2SO4:1},{CH3COOC2H5:1,H2O:1},'CH₃COOH + C₂H₅OH —(simulated acid catalyst, heat)→ CH₃COOC₂H₅ + H₂O',{condition:heated,preserveReactants:{H2SO4:1},temperatureDeltaK:1,observable:'ester product marker',limitations:'Virtual educational catalysis event; sulfuric acid is preserved as a catalyst and no real-world procedure is modeled.'})
 ];
 
 function normalizeFormula(formula) {
