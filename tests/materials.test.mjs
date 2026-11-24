@@ -18,6 +18,15 @@ test('miscible liquid samples form a component-preserving mixture', () => {
   assert.deepEqual(mixture.components, { H2O: 1, C2H5OH: 1 });
 });
 
+test('combining portions of the same pure liquid preserves its material identity', () => {
+  const first = createMaterialSample({ id: 'H2O', state: 'liquid', miscibleGroup: 'polar' }, { amount: 2 });
+  const second = createMaterialSample({ id: 'H2O', state: 'liquid', miscibleGroup: 'polar' }, { amount: 3 });
+  const combined = combineSamples(first, second);
+  assert.equal(combined.kind, 'pure');
+  assert.equal(combined.materialId, 'H2O');
+  assert.equal(combined.amount, 5);
+});
+
 test('unrelated or non-liquid samples never fabricate a homogeneous mixture', () => {
   const water = createMaterialSample({ id: 'H2O', state: 'liquid', miscibleGroup: 'polar' });
   const salt = createMaterialSample({ id: 'NaCl', state: 'solid' });

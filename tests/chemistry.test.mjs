@@ -17,11 +17,11 @@ test('unsupported contact never fabricates a reaction', () => {
 });
 
 test('reaction catalog has a balanced curated spread across education-safe categories', () => {
-  assert.ok(REACTION_RULES.length >= 10);
-  assert.deepEqual(
-    new Set(REACTION_RULES.map((rule) => rule.category)),
-    new Set(['water reaction', 'neutralization', 'gas formation', 'precipitation', 'displacement', 'dissolution'])
-  );
+  assert.ok(REACTION_RULES.length >= 35);
+  const categories = new Set(REACTION_RULES.map((rule) => rule.category));
+  for (const category of ['water reaction', 'neutralization', 'gas formation', 'precipitation', 'displacement', 'dissolution', 'combustion', 'decomposition', 'addition', 'synthesis']) {
+    assert.ok(categories.has(category), `Missing ${category}`);
+  }
   for (const rule of REACTION_RULES) {
     assert.ok(rule.equation.includes('→'));
     assert.ok(rule.explanation.length > 30);

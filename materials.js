@@ -35,6 +35,9 @@ export function combineSamples(left, right) {
   const components = { ...left.components };
   for (const [id, amount] of Object.entries(right.components)) components[id] = (components[id] || 0) + amount;
   const amount = left.amount + right.amount;
+  if (left.kind === 'pure' && right.kind === 'pure' && left.materialId === right.materialId) {
+    return { ...left, amount, temperatureK: (left.temperatureK * left.amount + right.temperatureK * right.amount) / Math.max(amount, 1), components: { [left.materialId]: amount } };
+  }
   return {
     kind: 'mixture',
     state: 'liquid',
