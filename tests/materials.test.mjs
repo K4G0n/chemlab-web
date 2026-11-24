@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createMaterialSample, combineSamples, materialStateAt, canMix, consumeSample, limitingExtent } from '../materials.js';
+import { createMaterialSample, combineSamples, materialStateAt, canMix, consumeSample, consumeComponent, limitingExtent } from '../materials.js';
 
 test('material sample preserves identity, amount, temperature, and component ledger', () => {
   const water = createMaterialSample({ id: 'H2O', state: 'liquid', density: 1, miscibleGroup: 'polar' }, { amount: 2, temperatureK: 293 });
@@ -51,4 +51,13 @@ test('consuming a sample reduces both its amount and component ledger proportion
 test('limiting extent honors reaction coefficients rather than deleting whole samples', () => {
   assert.equal(limitingExtent({ Na:3, H2O:10 }, { Na:2, H2O:2 }), 1.5);
   assert.equal(limitingExtent({ Na:3, H2O:1 }, { Na:2, H2O:2 }), .5);
+});
+
+test('a reaction can consume one component of a mixture without deleting its solvent', () => {
+  const water = createMaterialSample({ id: 'H2O', state: 'liquid', miscibleGroup: 'polar' }, { amount: 4 });
+  const ethanol = createMaterialSample({ id: 'C2H5OH', state: 'liquid', miscibleGroup: 'polar' }, { amount: 2 });
+  const mixture = combineSamples(water, ethanol);
+  const remaining = consumeComponent(mixture, 'H2O', 1.5);
+  assert.equal(remaining.amount, 4.5);
+  assert.deepEqual(remaining.components, { H2O: 2.5, C2H5OH: 2 });
 });

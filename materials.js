@@ -58,6 +58,14 @@ export function consumeSample(sample, consumedAmount) {
   };
 }
 
+export function consumeComponent(sample, materialId, consumedAmount) {
+  const available = Number(sample.components[materialId]) || 0;
+  const consumed = Math.min(available, Math.max(0, consumedAmount));
+  const components = { ...sample.components, [materialId]: available - consumed };
+  if (components[materialId] <= 1e-9) delete components[materialId];
+  return { ...sample, amount: Math.max(0, sample.amount - consumed), components };
+}
+
 export function limitingExtent(availableAmounts, coefficients) {
   const extents = Object.entries(coefficients).map(([id, coefficient]) => {
     const amount = Number(availableAmounts[id]) || 0;
