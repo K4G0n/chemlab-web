@@ -24,7 +24,7 @@ export function findReactionParticipantBodies(bodies, conditions = {}) {
   const available = {};
   for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
   for (const rule of REACTION_RULES) {
-    if (rule.reactants.length < 3 || !rule.condition(conditions)) continue;
+    if (rule.reactants.length < 2 || !rule.condition(conditions)) continue;
     const plan = planReaction(rule, available);
     if (plan.extent <= 1e-9) continue;
     const allocations = new Map();

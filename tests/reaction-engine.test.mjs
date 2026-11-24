@@ -51,3 +51,17 @@ test('participant scheduling consumes a reactant identity across multiple nearby
     ['acid-first', { CH3COOH:.25 }], ['acid-second', { CH3COOH:.75 }], ['ethanol', { C2H5OH:1 }], ['catalyst', { H2SO4:0 }]
   ]);
 });
+
+test('participant scheduling can combine binary reactants distributed over nearby bodies', () => {
+  const bodies = [
+    { id:'acid-first', position:{x:0,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} },
+    { id:'acid-second', position:{x:14,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} },
+    { id:'carbonate', position:{x:28,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{Na2CO3:1}}}} }
+  ];
+  const match = findReactionParticipantBodies(bodies, { temperatureK:293, pressureAtm:1 });
+  assert.equal(match?.rule.id, 'hcl-sodium-carbonate');
+  assert.equal(match?.extent, 1);
+  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]), [
+    ['acid-first', { HCl:1 }], ['acid-second', { HCl:1 }], ['carbonate', { Na2CO3:1 }]
+  ]);
+});
