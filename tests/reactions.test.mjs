@@ -224,3 +224,24 @@ test('zinc(II) nitrate and bromide salts extend the balanced hydroxide and carbo
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
   for (const id of ['ZnNO32', 'ZnBr2', 'ZnOH2', 'ZnCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
+
+test('iron(II) salts provide distinct hydroxide and educational carbonate precipitate outcomes', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['FeCl2', 'NaOH'], 'iron-ii-hydroxide-chloride-sodium'],
+    [['FeCl2', 'KOH'], 'iron-ii-hydroxide-chloride-potassium'],
+    [['FeSO4', 'NaOH'], 'iron-ii-hydroxide-sulfate-sodium'],
+    [['FeSO4', 'KOH'], 'iron-ii-hydroxide-sulfate-potassium'],
+    [['FeNO32', 'NaOH'], 'iron-ii-hydroxide-nitrate-sodium'],
+    [['FeNO32', 'KOH'], 'iron-ii-hydroxide-nitrate-potassium'],
+    [['FeCl2', 'Na2CO3'], 'iron-ii-carbonate-chloride-sodium'],
+    [['FeCl2', 'K2CO3'], 'iron-ii-carbonate-chloride-potassium'],
+    [['FeSO4', 'Na2CO3'], 'iron-ii-carbonate-sulfate-sodium'],
+    [['FeSO4', 'K2CO3'], 'iron-ii-carbonate-sulfate-potassium'],
+    [['FeNO32', 'Na2CO3'], 'iron-ii-carbonate-nitrate-sodium'],
+    [['FeNO32', 'K2CO3'], 'iron-ii-carbonate-nitrate-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['FeOH2', 'FeCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
