@@ -31,6 +31,12 @@ test('reaction lookup remains order independent but rejects unmatched identities
   assert.equal(supportedReaction(['Na', 'H2O'], { temperatureK:700, pressureAtm:1 }), null);
 });
 
+test('sodium-water requires a complete two-sodium stoichiometric set', () => {
+  const rule = supportedReaction(['Na', 'H2O'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'sodium-water');
+  assert.equal(rule?.requiresWholeStoichiometricSet, true);
+});
+
 test('unary decomposition rules are independently indexed and condition-gated', () => {
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:293, pressureAtm:1 }), null);
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:850, pressureAtm:1 })?.id, 'limestone-decomposition');

@@ -48,6 +48,39 @@ export function combineSamples(left, right) {
   };
 }
 
+function formatAmount(amount) {
+  return Number.isInteger(amount) ? String(amount) : String(Number(amount.toFixed(3)));
+}
+
+export function compositionText(components) {
+  return Object.entries(components)
+    .filter(([, amount]) => amount > 1e-9)
+    .map(([id, amount]) => `${Math.abs(amount - 1) < 1e-9 ? '' : formatAmount(amount)}${id}`)
+    .join(', ');
+}
+
+export function visibleCompositionLabel(components, maxLength = 6) {
+  const text = compositionText(components);
+  return text.length <= maxLength ? text : '';
+}
+
+export function combineSelectedSamples(samples) {
+  if (!Array.isArray(samples) || samples.length < 2) return null;
+  const components = {};
+  let amount = 0;
+  let temperatureTotal = 0;
+  const states = new Set();
+  for (const sample of samples) {
+    if (!sample?.components || !Number.isFinite(sample.amount)) return null;
+    amount += sample.amount;
+    temperatureTotal += sample.temperatureK * sample.amount;
+    states.add(sample.state);
+    for (const [id, part] of Object.entries(sample.components)) components[id] = (components[id] || 0) + part;
+  }
+  const state = states.size === 1 ? [...states][0] : states.has('gas') && states.size === 1 ? 'gas' : 'solid';
+  return { kind:'composition', state, amount, temperatureK:temperatureTotal / Math.max(amount, 1), components };
+}
+
 export function consumeSample(sample, consumedAmount) {
   const amount = Math.max(0, sample.amount - Math.max(0, consumedAmount));
   const ratio = sample.amount > 0 ? amount / sample.amount : 0;

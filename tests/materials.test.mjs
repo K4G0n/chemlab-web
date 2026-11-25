@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createMaterialSample, combineSamples, materialStateAt, canMix, consumeSample, consumeComponent, limitingExtent } from '../materials.js';
+import { createMaterialSample, combineSamples, combineSelectedSamples, compositionText, visibleCompositionLabel, materialStateAt, canMix, consumeSample, consumeComponent, limitingExtent } from '../materials.js';
 
 test('material sample preserves identity, amount, temperature, and component ledger', () => {
   const water = createMaterialSample({ id: 'H2O', state: 'liquid', density: 1, miscibleGroup: 'polar' }, { amount: 2, temperatureK: 293 });
@@ -25,6 +25,24 @@ test('combining portions of the same pure liquid preserves its material identity
   assert.equal(combined.kind, 'pure');
   assert.equal(combined.materialId, 'H2O');
   assert.equal(combined.amount, 5);
+});
+
+test('selected samples combine into a composition ledger regardless of physical state', () => {
+  const sodium = createMaterialSample({ id: 'Na', state: 'solid' });
+  const combined = combineSelectedSamples([sodium, sodium]);
+  assert.equal(combined.kind, 'composition');
+  assert.equal(combined.state, 'solid');
+  assert.deepEqual(combined.components, { Na: 2 });
+  assert.equal(compositionText(combined.components), '2Na');
+  assert.equal(visibleCompositionLabel(combined.components), '2Na');
+});
+
+test('long combined composition is retained in full but suppressed on the body label', () => {
+  const acid = createMaterialSample({ id: 'HCl', state: 'liquid' });
+  const nitrate = createMaterialSample({ id: 'NaNO3', state: 'solid' });
+  const combined = combineSelectedSamples([acid, nitrate]);
+  assert.equal(compositionText(combined.components), 'HCl, NaNO3');
+  assert.equal(visibleCompositionLabel(combined.components), '');
 });
 
 test('unrelated or non-liquid samples never fabricate a homogeneous mixture', () => {

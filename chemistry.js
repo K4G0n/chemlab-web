@@ -132,11 +132,11 @@ const heated = ({temperatureK=293}) => temperatureK >= 450;
 const stronglyHeated = ({temperatureK=293}) => temperatureK >= 700;
 const pressurized = ({temperatureK=293,pressureAtm=1}) => temperatureK >= 450 && pressureAtm >= 5;
 function rule(id, category, reactantStoichiometry, productStoichiometry, equation, options = {}) {
-  return { id, name:options.name || id.replaceAll('-',' '), category, reactantStoichiometry, productStoichiometry, reactants:Object.keys(reactantStoichiometry), products:Object.keys(productStoichiometry), equation, selectionPriority:options.selectionPriority ?? 0, temperatureDeltaK:options.temperatureDeltaK ?? 0, observable:options.observable || 'a tracked product transformation', explanation:options.explanation || `A curated, educational ${category} simulation event.`, reference:options.reference || REF, validation:'balanced', modes:options.modes || ['normal','quantum'], preserveReactants:options.preserveReactants || {}, condition:options.condition || ordinary, limitations:options.limitations || 'Rule-based educational approximation; no laboratory prediction is implied.' };
+  return { id, name:options.name || id.replaceAll('-',' '), category, reactantStoichiometry, productStoichiometry, reactants:Object.keys(reactantStoichiometry), products:Object.keys(productStoichiometry), equation, selectionPriority:options.selectionPriority ?? 0, temperatureDeltaK:options.temperatureDeltaK ?? 0, observable:options.observable || 'a tracked product transformation', explanation:options.explanation || `A curated, educational ${category} simulation event.`, reference:options.reference || REF, validation:'balanced', modes:options.modes || ['normal','quantum'], preserveReactants:options.preserveReactants || {}, requiresWholeStoichiometricSet:options.requiresWholeStoichiometricSet === true, condition:options.condition || ordinary, limitations:options.limitations || 'Rule-based educational approximation; no laboratory prediction is implied.' };
 }
 
 export const REACTION_RULES = [
-  rule('sodium-water','water reaction',{Na:2,H2O:2},{NaOH:2,H2:1},'2Na + 2H₂O → 2NaOH + H₂↑',{temperatureDeltaK:20,observable:'heat and hydrogen gas marker'}),
+  rule('sodium-water','water reaction',{Na:2,H2O:2},{NaOH:2,H2:1},'2Na + 2H₂O → 2NaOH + H₂↑',{requiresWholeStoichiometricSet:true,temperatureDeltaK:20,observable:'heat and hydrogen gas marker'}),
   rule('hcl-naoh','neutralization',{HCl:1,NaOH:1},{NaCl:1,H2O:1},'HCl + NaOH → NaCl + H₂O',{temperatureDeltaK:8}),
   rule('h2so4-naoh','neutralization',{H2SO4:1,NaOH:2},{Na2SO4:1,H2O:2},'H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O',{temperatureDeltaK:10}),
   rule('hno3-koh','neutralization',{HNO3:1,KOH:1},{KNO3:1,H2O:1},'HNO₃ + KOH → KNO₃ + H₂O',{temperatureDeltaK:7}),
