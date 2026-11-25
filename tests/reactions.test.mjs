@@ -176,3 +176,17 @@ test('calcium carbonate precipitation completes the curated calcium salt and alk
   for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
   assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('CaCO3'), true, 'CaCO3 must be spawnable');
 });
+
+test('copper(II) chloride and sulfate salts provide distinct hydroxide and carbonate precipitation outcomes', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['CuCl2', 'NaOH'], 'copper-hydroxide-chloride-sodium'],
+    [['CuCl2', 'KOH'], 'copper-hydroxide-chloride-potassium'],
+    [['CuCl2', 'Na2CO3'], 'copper-carbonate-chloride-sodium'],
+    [['CuCl2', 'K2CO3'], 'copper-carbonate-chloride-potassium'],
+    [['CuSO4', 'K2CO3'], 'copper-carbonate-sulfate-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['CuOH2', 'CuCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});

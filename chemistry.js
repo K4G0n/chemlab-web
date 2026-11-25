@@ -263,7 +263,12 @@ export const REACTION_RULES = [
   rule('calcium-sulfate-nitrate-potassium','precipitation',{CaNO32:1,K2SO4:1},{CaSO4:1,KNO3:2},'Ca(NO₃)₂ + K₂SO₄ → CaSO₄↓ + 2KNO₃',{observable:'white precipitate marker'}),
   rule('calcium-carbonate-chloride-potassium','precipitation',{CaCl2:1,K2CO3:1},{CaCO3:1,KCl:2},'CaCl₂ + K₂CO₃ → CaCO₃↓ + 2KCl',{observable:'white carbonate precipitate marker'}),
   rule('calcium-carbonate-nitrate-sodium','precipitation',{CaNO32:1,Na2CO3:1},{CaCO3:1,NaNO3:2},'Ca(NO₃)₂ + Na₂CO₃ → CaCO₃↓ + 2NaNO₃',{observable:'white carbonate precipitate marker'}),
-  rule('calcium-carbonate-nitrate-potassium','precipitation',{CaNO32:1,K2CO3:1},{CaCO3:1,KNO3:2},'Ca(NO₃)₂ + K₂CO₃ → CaCO₃↓ + 2KNO₃',{observable:'white carbonate precipitate marker'})
+  rule('calcium-carbonate-nitrate-potassium','precipitation',{CaNO32:1,K2CO3:1},{CaCO3:1,KNO3:2},'Ca(NO₃)₂ + K₂CO₃ → CaCO₃↓ + 2KNO₃',{observable:'white carbonate precipitate marker'}),
+  rule('copper-hydroxide-chloride-sodium','precipitation',{CuCl2:1,NaOH:2},{CuOH2:1,NaCl:2},'CuCl₂ + 2NaOH → Cu(OH)₂↓ + 2NaCl',{observable:'blue hydroxide precipitate marker'}),
+  rule('copper-hydroxide-chloride-potassium','precipitation',{CuCl2:1,KOH:2},{CuOH2:1,KCl:2},'CuCl₂ + 2KOH → Cu(OH)₂↓ + 2KCl',{observable:'blue hydroxide precipitate marker'}),
+  rule('copper-carbonate-chloride-sodium','precipitation',{CuCl2:1,Na2CO3:1},{CuCO3:1,NaCl:2},'CuCl₂ + Na₂CO₃ → CuCO₃↓ + 2NaCl',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('copper-carbonate-chloride-potassium','precipitation',{CuCl2:1,K2CO3:1},{CuCO3:1,KCl:2},'CuCl₂ + K₂CO₃ → CuCO₃↓ + 2KCl',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('copper-carbonate-sulfate-potassium','precipitation',{CuSO4:1,K2CO3:1},{CuCO3:1,K2SO4:1},'CuSO₄ + K₂CO₃ → CuCO₃↓ + K₂SO₄',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'})
 ];
 
 function normalizeFormula(formula) {
