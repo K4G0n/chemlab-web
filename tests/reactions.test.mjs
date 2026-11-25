@@ -140,3 +140,15 @@ test('aluminium and iron(III) sulfate hydroxide precipitation variants preserve 
   for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
   assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('AlOH3'), true, 'AlOH3 must be spawnable');
 });
+
+test('calcium hydroxide precipitation variants conserve nitrate and chloride spectator salts', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['CaCl2', 'NaOH'], 'calcium-hydroxide-chloride-sodium'],
+    [['CaCl2', 'KOH'], 'calcium-hydroxide-chloride-potassium'],
+    [['CaNO32', 'NaOH'], 'calcium-hydroxide-nitrate-sodium'],
+    [['CaNO32', 'KOH'], 'calcium-hydroxide-nitrate-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('CaOH2'), true, 'CaOH2 must be spawnable');
+});

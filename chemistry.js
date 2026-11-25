@@ -251,7 +251,11 @@ export const REACTION_RULES = [
   rule('aluminium-hydroxide-sulfate-sodium','precipitation',{Al2SO43:1,NaOH:6},{AlOH3:2,Na2SO4:3},'Al₂(SO₄)₃ + 6NaOH → 2Al(OH)₃↓ + 3Na₂SO₄',{observable:'white hydroxide precipitate marker'}),
   rule('aluminium-hydroxide-sulfate-potassium','precipitation',{Al2SO43:1,KOH:6},{AlOH3:2,K2SO4:3},'Al₂(SO₄)₃ + 6KOH → 2Al(OH)₃↓ + 3K₂SO₄',{observable:'white hydroxide precipitate marker'}),
   rule('iron-hydroxide-sulfate-sodium','precipitation',{Fe2SO43:1,NaOH:6},{FeOH3:2,Na2SO4:3},'Fe₂(SO₄)₃ + 6NaOH → 2Fe(OH)₃↓ + 3Na₂SO₄',{observable:'brown hydroxide precipitate marker'}),
-  rule('iron-hydroxide-sulfate-potassium','precipitation',{Fe2SO43:1,KOH:6},{FeOH3:2,K2SO4:3},'Fe₂(SO₄)₃ + 6KOH → 2Fe(OH)₃↓ + 3K₂SO₄',{observable:'brown hydroxide precipitate marker'})
+  rule('iron-hydroxide-sulfate-potassium','precipitation',{Fe2SO43:1,KOH:6},{FeOH3:2,K2SO4:3},'Fe₂(SO₄)₃ + 6KOH → 2Fe(OH)₃↓ + 3K₂SO₄',{observable:'brown hydroxide precipitate marker'}),
+  rule('calcium-hydroxide-chloride-sodium','precipitation',{CaCl2:1,NaOH:2},{CaOH2:1,NaCl:2},'CaCl₂ + 2NaOH → Ca(OH)₂↓ + 2NaCl',{observable:'white hydroxide precipitate marker'}),
+  rule('calcium-hydroxide-chloride-potassium','precipitation',{CaCl2:1,KOH:2},{CaOH2:1,KCl:2},'CaCl₂ + 2KOH → Ca(OH)₂↓ + 2KCl',{observable:'white hydroxide precipitate marker'}),
+  rule('calcium-hydroxide-nitrate-sodium','precipitation',{CaNO32:1,NaOH:2},{CaOH2:1,NaNO3:2},'Ca(NO₃)₂ + 2NaOH → Ca(OH)₂↓ + 2NaNO₃',{observable:'white hydroxide precipitate marker'}),
+  rule('calcium-hydroxide-nitrate-potassium','precipitation',{CaNO32:1,KOH:2},{CaOH2:1,KNO3:2},'Ca(NO₃)₂ + 2KOH → Ca(OH)₂↓ + 2KNO₃',{observable:'white hydroxide precipitate marker'})
 ];
 
 function normalizeFormula(formula) {
