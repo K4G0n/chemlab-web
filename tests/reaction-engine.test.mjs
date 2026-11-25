@@ -1,9 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { allocateCompactParticipants, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
+import { allocateCompactParticipants, candidateRulesForComponents, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
+
+test('candidate rule lookup retains only multi-body rules whose complete reactant set is local', () => {
+  assert.deepEqual(candidateRulesForComponents(new Set(['HCl', 'NaOH'])).map(({ id }) => id), ['hcl-naoh']);
+});
 
 test('component index retains only bodies that supply each positive material amount', () => {
   const bodies = [

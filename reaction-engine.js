@@ -2,6 +2,23 @@
 // after this routine has accepted a validated, data-driven registry entry.
 import { REACTION_RULES } from './chemistry.js';
 
+const MULTI_BODY_RULES = REACTION_RULES.filter((rule) => rule.reactants.length >= 2);
+const RULES_BY_REACTANT = new Map();
+for (const rule of MULTI_BODY_RULES) for (const id of rule.reactants) {
+  if (!RULES_BY_REACTANT.has(id)) RULES_BY_REACTANT.set(id, []);
+  RULES_BY_REACTANT.get(id).push(rule);
+}
+
+export function candidateRulesForComponents(componentIds) {
+  const available = new Set(componentIds);
+  let candidates = null;
+  for (const id of available) {
+    const indexed = RULES_BY_REACTANT.get(id);
+    if (indexed && (!candidates || indexed.length < candidates.length)) candidates = indexed;
+  }
+  return (candidates || []).filter((rule) => rule.reactants.every((id) => available.has(id)));
+}
+
 export function planReaction(rule, availableAmounts = {}) {
   const reactants = rule?.reactantStoichiometry || {};
   const preserved = rule?.preserveReactants || {};
@@ -153,8 +170,8 @@ function findReactionInCluster(bodies, conditions) {
   for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
   const sourcesByComponent = indexBodiesByComponent(bodies);
   const rankedSourcesByAnchor = new Map();
-  for (const rule of REACTION_RULES) {
-    if (rule.reactants.length < 2 || !rule.condition(conditions)) continue;
+  for (const rule of candidateRulesForComponents(sourcesByComponent.keys())) {
+    if (!rule.condition(conditions)) continue;
     const plan = planReaction(rule, available);
     if (plan.extent <= 1e-9) continue;
     const participants = allocateCompactParticipants(bodies, rule.reactantStoichiometry, plan.extent, rule.preserveReactants, sourcesByComponent, rankedSourcesByAnchor);
