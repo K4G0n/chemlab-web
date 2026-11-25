@@ -27,9 +27,10 @@ test('combining portions of the same pure liquid preserves its material identity
   assert.equal(combined.amount, 5);
 });
 
-test('selected samples combine into a composition ledger regardless of physical state', () => {
-  const sodium = createMaterialSample({ id: 'Na', state: 'solid' });
+test('element symbols are stable ledger identities and combined quantities use chemical notation', () => {
+  const sodium = createMaterialSample({ symbol: 'Na', state: 'solid' });
   const combined = combineSelectedSamples([sodium, sodium]);
+  assert.equal(sodium.materialId, 'Na');
   assert.equal(combined.kind, 'composition');
   assert.equal(combined.state, 'solid');
   assert.deepEqual(combined.components, { Na: 2 });

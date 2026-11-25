@@ -8,18 +8,25 @@ export function materialStateAt(material, temperatureK) {
   return material.state || 'solid';
 }
 
+function materialIdentity(material) {
+  const id = material?.id || material?.symbol || material?.formulaAscii || material?.formula || material?.name;
+  if (typeof id !== 'string' || !id.trim()) throw new TypeError('A material needs an id, symbol, formula, or name.');
+  return id;
+}
+
 export function createMaterialSample(material, options = {}) {
+  const materialId = materialIdentity(material);
   const amount = Number.isFinite(options.amount) ? Math.max(0, options.amount) : 1;
   const temperatureK = Number.isFinite(options.temperatureK) ? options.temperatureK : 293;
   return {
     kind: 'pure',
-    materialId: material.id,
+    materialId,
     state: materialStateAt(material, temperatureK),
     density: Number(material.density) || null,
     miscibleGroup: material.miscibleGroup || null,
     amount,
     temperatureK,
-    components: { [material.id]: amount }
+    components: { [materialId]: amount }
   };
 }
 

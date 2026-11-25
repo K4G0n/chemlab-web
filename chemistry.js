@@ -361,3 +361,9 @@ export function supportedReaction(symbols, conditions = {}) {
 export function supportedUnaryReaction(symbol, conditions = {}) {
   return (reactionIndex.get(symbol) || []).find(candidate => candidate.reactants.length === 1 && candidate.condition(conditions)) || null;
 }
+export function supportedContainedReaction(availableAmounts, conditions = {}) {
+  return REACTION_RULES
+    .filter(candidate => candidate.reactants.length > 1 && candidate.condition(conditions))
+    .filter(candidate => Object.entries(candidate.reactantStoichiometry).every(([id, coefficient]) => (Number(availableAmounts?.[id]) || 0) >= coefficient))
+    .sort((left, right) => (right.selectionPriority - left.selectionPriority) || left.id.localeCompare(right.id))[0] || null;
+}
