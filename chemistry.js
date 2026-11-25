@@ -39,6 +39,8 @@ export const COMPOUNDS = [
   compound('Na2SO4','Sodium sulfate','Na₂SO₄','Salts','solid',{formulaAscii:'Na2SO4'}),
   compound('NaNO3','Sodium nitrate','NaNO₃','Salts','solid',{formulaAscii:'NaNO3'}),
   compound('KNO3','Potassium nitrate','KNO₃','Salts','solid',{formulaAscii:'KNO3'}),
+  compound('NaNO2','Sodium nitrite','NaNO₂','Reaction products','solid',{formulaAscii:'NaNO2'}),
+  compound('KNO2','Potassium nitrite','KNO₂','Reaction products','solid',{formulaAscii:'KNO2'}),
   compound('KI','Potassium iodide','KI','Salts','solid'),
   compound('KCl','Potassium chloride','KCl','Salts','solid'),
   compound('KClO3','Potassium chlorate','KClO₃','Salts','solid',{formulaAscii:'KClO3'}),
@@ -318,7 +320,9 @@ export const REACTION_RULES = [
   rule('magnesium-hydroxide-decomposition','decomposition',{MgOH2:1},{MgO:1,H2O:1},'Mg(OH)₂ → MgO + H₂O',{condition:stronglyHeated,temperatureDeltaK:-10,observable:'magnesium oxide marker',explanation:'A simulated high-temperature decomposition of magnesium hydroxide into magnesium oxide and water.',limitations:'Educational thermal decomposition model; phase details and kinetic behavior are not simulated.'}),
   rule('zinc-hydroxide-decomposition','decomposition',{ZnOH2:1},{ZnO:1,H2O:1},'Zn(OH)₂ → ZnO + H₂O',{condition:stronglyHeated,temperatureDeltaK:-10,observable:'zinc oxide marker',explanation:'A simulated high-temperature decomposition of zinc hydroxide into zinc oxide and water.',limitations:'Educational thermal decomposition model; phase details and kinetic behavior are not simulated.'}),
   rule('copper-hydroxide-decomposition','decomposition',{CuOH2:1},{CuO:1,H2O:1},'Cu(OH)₂ → CuO + H₂O',{condition:stronglyHeated,temperatureDeltaK:-10,observable:'copper(II) oxide marker',explanation:'A simulated high-temperature decomposition of copper(II) hydroxide into copper(II) oxide and water.',limitations:'Educational thermal decomposition model; phase details and kinetic behavior are not simulated.'}),
-  rule('iron-iii-hydroxide-decomposition','decomposition',{FeOH3:2},{Fe2O3:1,H2O:3},'2Fe(OH)₃ → Fe₂O₃ + 3H₂O',{condition:stronglyHeated,temperatureDeltaK:-14,observable:'iron(III) oxide marker',explanation:'A simulated high-temperature dehydration of iron(III) hydroxide to iron(III) oxide.',limitations:'Educational thermal decomposition model; hydroxide dehydration intermediates are not simulated.'})
+  rule('iron-iii-hydroxide-decomposition','decomposition',{FeOH3:2},{Fe2O3:1,H2O:3},'2Fe(OH)₃ → Fe₂O₃ + 3H₂O',{condition:stronglyHeated,temperatureDeltaK:-14,observable:'iron(III) oxide marker',explanation:'A simulated high-temperature dehydration of iron(III) hydroxide to iron(III) oxide.',limitations:'Educational thermal decomposition model; hydroxide dehydration intermediates are not simulated.'}),
+  rule('sodium-nitrate-decomposition','decomposition',{NaNO3:2},{NaNO2:2,O2:1},'2NaNO₃ → 2NaNO₂ + O₂↑',{condition:stronglyHeated,temperatureDeltaK:-14,observable:'sodium nitrite and oxygen gas marker',explanation:'A simulated high-temperature decomposition of sodium nitrate into sodium nitrite and oxygen.',limitations:'Educational thermal decomposition model; no preparation conditions, kinetic behavior, or secondary nitrate pathways are simulated.'}),
+  rule('potassium-nitrate-decomposition','decomposition',{KNO3:2},{KNO2:2,O2:1},'2KNO₃ → 2KNO₂ + O₂↑',{condition:stronglyHeated,temperatureDeltaK:-14,observable:'potassium nitrite and oxygen gas marker',explanation:'A simulated high-temperature decomposition of potassium nitrate into potassium nitrite and oxygen.',limitations:'Educational thermal decomposition model; no preparation conditions, kinetic behavior, or secondary nitrate pathways are simulated.'})
 ];
 
 function normalizeFormula(formula) {

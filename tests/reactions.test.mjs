@@ -287,3 +287,18 @@ test('curated metal carbonate and hydroxide decompositions require simulated hig
   const copperCarbonate = REACTION_RULES.find((rule) => rule.id === 'copper-carbonate-decomposition');
   assert.match(copperCarbonate?.limitations || '', /basic carbonate variants/i);
 });
+
+test('alkali nitrate decompositions are spawnable and require simulated high temperature', () => {
+  const ordinaryConditions = { temperatureK:293, pressureAtm:1 };
+  const stronglyHeatedConditions = { temperatureK:700, pressureAtm:1 };
+  const expectedRules = [
+    ['NaNO3', 'sodium-nitrate-decomposition'],
+    ['KNO3', 'potassium-nitrate-decomposition']
+  ];
+  for (const [reactant, id] of expectedRules) {
+    assert.equal(supportedUnaryReaction(reactant, ordinaryConditions), null, `${reactant} should not decompose at ordinary conditions`);
+    assert.equal(supportedUnaryReaction(reactant, stronglyHeatedConditions)?.id, id);
+  }
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['NaNO2', 'KNO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
