@@ -197,10 +197,14 @@ function findReactionInCluster(bodies, conditions) {
   return matches.sort(compareReactionMatches)[0] || null;
 }
 
+export function findBestReactionParticipantBodies(bodies, conditionsForCluster, neighborDistance = 72) {
+  const resolveConditions = typeof conditionsForCluster === 'function' ? conditionsForCluster : () => conditionsForCluster || {};
+  const matches = connectedBodyClusters(bodies, neighborDistance)
+    .map(cluster => findReactionInCluster(cluster, resolveConditions(cluster)))
+    .filter(Boolean);
+  return matches.sort(compareReactionMatches)[0] || null;
+}
+
 export function findReactionParticipantBodies(bodies, conditions = {}, neighborDistance = 72) {
-  for (const cluster of connectedBodyClusters(bodies, neighborDistance)) {
-    const match = findReactionInCluster(cluster, conditions);
-    if (match) return match;
-  }
-  return null;
+  return findBestReactionParticipantBodies(bodies, conditions, neighborDistance);
 }

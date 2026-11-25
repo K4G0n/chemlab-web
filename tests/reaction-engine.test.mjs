@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { allocateCompactParticipants, candidateRulesForComponents, collisionClusterForBodies, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
+import { allocateCompactParticipants, candidateRulesForComponents, collisionClusterForBodies, findBestReactionParticipantBodies, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
 
@@ -142,6 +142,33 @@ test('participant scheduling prefers a complete catalyst-aware rule over a less-
   assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]), [
     ['ethene', { C2H4:1 }], ['water', { H2O:1 }], ['catalyst', { H2SO4:0 }]
   ]);
+});
+
+test('participant scheduling applies curator priority across disconnected local clusters', () => {
+  const bodies = [
+    { id:'acid', position:{x:0,y:0}, plugin:{sample:{ledger:{components:{HCl:1}}}} },
+    { id:'base', position:{x:18,y:0}, plugin:{sample:{ledger:{components:{NaOH:1}}}} },
+    { id:'ethene', position:{x:180,y:0}, plugin:{sample:{ledger:{components:{C2H4:1}}}} },
+    { id:'water', position:{x:198,y:0}, plugin:{sample:{ledger:{components:{H2O:1}}}} },
+    { id:'catalyst', position:{x:216,y:0}, plugin:{sample:{ledger:{components:{H2SO4:1}}}} }
+  ];
+  const match = findReactionParticipantBodies(bodies, { temperatureK:480, pressureAtm:1 });
+  assert.equal(match?.rule.id, 'ethene-hydration-acid-catalyzed');
+});
+
+test('cluster scheduler retains each local temperature while prioritizing matches globally', () => {
+  const bodies = [
+    { id:'acid', position:{x:0,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} },
+    { id:'base', position:{x:18,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{NaOH:1}}}} },
+    { id:'ethene', position:{x:180,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{C2H4:1}}}} },
+    { id:'water', position:{x:198,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{H2O:1}}}} },
+    { id:'catalyst', position:{x:216,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{H2SO4:1}}}} }
+  ];
+  const match = findBestReactionParticipantBodies(bodies, (cluster) => ({
+    temperatureK:cluster.reduce((total, body) => total + body.plugin.sample.temperatureK, 0) / cluster.length,
+    pressureAtm:1
+  }));
+  assert.equal(match?.rule.id, 'ethene-hydration-acid-catalyzed');
 });
 
 test('participant scheduling consumes a reactant identity across multiple nearby bodies', () => {
