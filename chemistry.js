@@ -52,6 +52,8 @@ export const COMPOUNDS = [
   compound('PbNO32','Lead(II) nitrate','Pb(NO₃)₂','Salts','solid',{formulaAscii:'Pb(NO3)2'}),
   compound('PbI2','Lead(II) iodide','PbI₂','Reaction products','solid',{formulaAscii:'PbI2',color:'#f1cf49'}),
   compound('CuSO4','Copper(II) sulfate','CuSO₄','Salts','solid',{formulaAscii:'CuSO4',density:3.6,color:'#4f9dff'}),
+  compound('CuNO32','Copper(II) nitrate','Cu(NO₃)₂','Salts','solid',{formulaAscii:'Cu(NO3)2',color:'#4f9dff'}),
+  compound('CuBr2','Copper(II) bromide','CuBr₂','Salts','solid',{formulaAscii:'CuBr2',color:'#7a9cc8'}),
   compound('CuOH2','Copper(II) hydroxide','Cu(OH)₂','Reaction products','solid',{formulaAscii:'Cu(OH)2',color:'#70b6ed'}),
   compound('CuO','Copper(II) oxide','CuO','Oxides','solid'),
   compound('CuCl2','Copper(II) chloride','CuCl₂','Salts','solid',{formulaAscii:'CuCl2'}),
@@ -268,7 +270,15 @@ export const REACTION_RULES = [
   rule('copper-hydroxide-chloride-potassium','precipitation',{CuCl2:1,KOH:2},{CuOH2:1,KCl:2},'CuCl₂ + 2KOH → Cu(OH)₂↓ + 2KCl',{observable:'blue hydroxide precipitate marker'}),
   rule('copper-carbonate-chloride-sodium','precipitation',{CuCl2:1,Na2CO3:1},{CuCO3:1,NaCl:2},'CuCl₂ + Na₂CO₃ → CuCO₃↓ + 2NaCl',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
   rule('copper-carbonate-chloride-potassium','precipitation',{CuCl2:1,K2CO3:1},{CuCO3:1,KCl:2},'CuCl₂ + K₂CO₃ → CuCO₃↓ + 2KCl',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
-  rule('copper-carbonate-sulfate-potassium','precipitation',{CuSO4:1,K2CO3:1},{CuCO3:1,K2SO4:1},'CuSO₄ + K₂CO₃ → CuCO₃↓ + K₂SO₄',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'})
+  rule('copper-carbonate-sulfate-potassium','precipitation',{CuSO4:1,K2CO3:1},{CuCO3:1,K2SO4:1},'CuSO₄ + K₂CO₃ → CuCO₃↓ + K₂SO₄',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('copper-hydroxide-nitrate-sodium','precipitation',{CuNO32:1,NaOH:2},{CuOH2:1,NaNO3:2},'Cu(NO₃)₂ + 2NaOH → Cu(OH)₂↓ + 2NaNO₃',{observable:'blue hydroxide precipitate marker'}),
+  rule('copper-hydroxide-nitrate-potassium','precipitation',{CuNO32:1,KOH:2},{CuOH2:1,KNO3:2},'Cu(NO₃)₂ + 2KOH → Cu(OH)₂↓ + 2KNO₃',{observable:'blue hydroxide precipitate marker'}),
+  rule('copper-carbonate-nitrate-sodium','precipitation',{CuNO32:1,Na2CO3:1},{CuCO3:1,NaNO3:2},'Cu(NO₃)₂ + Na₂CO₃ → CuCO₃↓ + 2NaNO₃',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('copper-carbonate-nitrate-potassium','precipitation',{CuNO32:1,K2CO3:1},{CuCO3:1,KNO3:2},'Cu(NO₃)₂ + K₂CO₃ → CuCO₃↓ + 2KNO₃',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('copper-hydroxide-bromide-sodium','precipitation',{CuBr2:1,NaOH:2},{CuOH2:1,NaBr:2},'CuBr₂ + 2NaOH → Cu(OH)₂↓ + 2NaBr',{observable:'blue hydroxide precipitate marker'}),
+  rule('copper-hydroxide-bromide-potassium','precipitation',{CuBr2:1,KOH:2},{CuOH2:1,KBr:2},'CuBr₂ + 2KOH → Cu(OH)₂↓ + 2KBr',{observable:'blue hydroxide precipitate marker'}),
+  rule('copper-carbonate-bromide-sodium','precipitation',{CuBr2:1,Na2CO3:1},{CuCO3:1,NaBr:2},'CuBr₂ + Na₂CO₃ → CuCO₃↓ + 2NaBr',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('copper-carbonate-bromide-potassium','precipitation',{CuBr2:1,K2CO3:1},{CuCO3:1,KBr:2},'CuBr₂ + K₂CO₃ → CuCO₃↓ + 2KBr',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'})
 ];
 
 function normalizeFormula(formula) {

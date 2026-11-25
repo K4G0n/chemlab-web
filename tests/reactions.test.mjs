@@ -190,3 +190,20 @@ test('copper(II) chloride and sulfate salts provide distinct hydroxide and carbo
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
   for (const id of ['CuOH2', 'CuCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
+
+test('copper(II) nitrate and bromide salts extend the balanced hydroxide and carbonate precipitation matrix', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['CuNO32', 'NaOH'], 'copper-hydroxide-nitrate-sodium'],
+    [['CuNO32', 'KOH'], 'copper-hydroxide-nitrate-potassium'],
+    [['CuNO32', 'Na2CO3'], 'copper-carbonate-nitrate-sodium'],
+    [['CuNO32', 'K2CO3'], 'copper-carbonate-nitrate-potassium'],
+    [['CuBr2', 'NaOH'], 'copper-hydroxide-bromide-sodium'],
+    [['CuBr2', 'KOH'], 'copper-hydroxide-bromide-potassium'],
+    [['CuBr2', 'Na2CO3'], 'copper-carbonate-bromide-sodium'],
+    [['CuBr2', 'K2CO3'], 'copper-carbonate-bromide-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['CuNO32', 'CuBr2', 'CuOH2', 'CuCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
