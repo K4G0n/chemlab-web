@@ -321,3 +321,19 @@ test('curated divalent metal nitrate decompositions require simulated high tempe
   const copperNitrate = REACTION_RULES.find((rule) => rule.id === 'copper-nitrate-decomposition');
   assert.match(copperNitrate?.limitations || '', /educational thermal decomposition model/i);
 });
+
+test('curated sulfite and sulfide acid reactions expose gas products and a precursor pathway', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['Na2SO3', 'HCl'], 'hydrochloric-sodium-sulfite'],
+    [['Na2SO3', 'HBr'], 'hydrobromic-sodium-sulfite'],
+    [['Na2S', 'HCl'], 'hydrochloric-sodium-sulfide'],
+    [['Na2S', 'HBr'], 'hydrobromic-sodium-sulfide'],
+    [['Na', 'S'], 'sodium-sulfide-synthesis']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['Na2S', 'H2S']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const sulfide = REACTION_RULES.find((rule) => rule.id === 'hydrochloric-sodium-sulfide');
+  assert.match(sulfide?.limitations || '', /educational gas-formation model/i);
+});
