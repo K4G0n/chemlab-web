@@ -41,6 +41,20 @@ test('component source ranking reuses a supplied anchor cache during one reactio
   assert.strictEqual(second, first);
 });
 
+test('component source ranking only sorts materials required by the feasible rule', () => {
+  const anchor = { position:{x:0, y:0} };
+  const sources = new Map([
+    ['HCl', [{ id:'acid-far', position:{x:20,y:0} }, { id:'acid-near', position:{x:2,y:0} }]],
+    ['NaOH', [{ id:'base', position:{x:4,y:0} }]],
+    ['H2SO4', [{ id:'catalyst', position:{x:6,y:0} }]]
+  ]);
+  const ranked = rankComponentSourcesByAnchor(anchor, sources, new Map(), ['HCl', 'NaOH']);
+  assert.deepEqual([...ranked.entries()].map(([id, bodies]) => [id, bodies.map(({ id: bodyId }) => bodyId)]), [
+    ['HCl', ['acid-near', 'acid-far']],
+    ['NaOH', ['base']]
+  ]);
+});
+
 test('spatial neighbor pruning yields each nearby candidate pair once across grid boundaries', () => {
   const bodies = [
     { id:'left', position:{x:71,y:0} },

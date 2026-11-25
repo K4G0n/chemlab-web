@@ -91,11 +91,23 @@ export function indexBodiesByComponent(bodies) {
   return sourcesByComponent;
 }
 
-export function rankComponentSourcesByAnchor(anchor, sourcesByComponent, cache = null) {
-  if (cache?.has(anchor)) return cache.get(anchor);
-  const ranked = new Map([...sourcesByComponent].map(([id, sources]) => [id, [...sources]
-    .sort((left, right) => squaredDistance(left, anchor) - squaredDistance(right, anchor))]));
-  cache?.set(anchor, ranked);
+export function rankComponentSourcesByAnchor(anchor, sourcesByComponent, cache = null, componentIds = null) {
+  const ids = componentIds ? [...new Set(componentIds)].filter(id => sourcesByComponent.has(id)) : [...sourcesByComponent.keys()];
+  const cacheKey = ids.join('\u0000');
+  let anchorCache = cache?.get(anchor);
+  if (!anchorCache) {
+    anchorCache = { rankings:new Map(), results:new Map() };
+    cache?.set(anchor, anchorCache);
+  }
+  if (anchorCache.results.has(cacheKey)) return anchorCache.results.get(cacheKey);
+  const ranked = new Map(ids.map((id) => {
+    if (!anchorCache.rankings.has(id)) {
+      anchorCache.rankings.set(id, [...sourcesByComponent.get(id)]
+        .sort((left, right) => squaredDistance(left, anchor) - squaredDistance(right, anchor)));
+    }
+    return [id, anchorCache.rankings.get(id)];
+  }));
+  anchorCache.results.set(cacheKey, ranked);
   return ranked;
 }
 
@@ -103,7 +115,7 @@ export function allocateCompactParticipants(bodies, reactants, extent, preserveR
   if (!(extent > 1e-9)) return null;
   let best = null;
   for (const anchor of bodies) {
-    const rankedSources = rankComponentSourcesByAnchor(anchor, sourcesByComponent, rankedSourcesByAnchor);
+    const rankedSources = rankComponentSourcesByAnchor(anchor, sourcesByComponent, rankedSourcesByAnchor, Object.keys(reactants));
     const allocations = new Map();
     let cost = 0;
     let complete = true;
