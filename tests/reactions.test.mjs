@@ -267,3 +267,23 @@ test('magnesium(II) salts provide carbonate outcomes with balanced spectator sal
   for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
   assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('MgCO3'), true, 'MgCO3 must be spawnable');
 });
+
+test('curated metal carbonate and hydroxide decompositions require simulated high temperature', () => {
+  const ordinaryConditions = { temperatureK:293, pressureAtm:1 };
+  const stronglyHeatedConditions = { temperatureK:700, pressureAtm:1 };
+  const expectedRules = [
+    ['MgCO3', 'magnesium-carbonate-decomposition'],
+    ['ZnCO3', 'zinc-carbonate-decomposition'],
+    ['CuCO3', 'copper-carbonate-decomposition'],
+    ['MgOH2', 'magnesium-hydroxide-decomposition'],
+    ['ZnOH2', 'zinc-hydroxide-decomposition'],
+    ['CuOH2', 'copper-hydroxide-decomposition'],
+    ['FeOH3', 'iron-iii-hydroxide-decomposition']
+  ];
+  for (const [reactant, id] of expectedRules) {
+    assert.equal(supportedUnaryReaction(reactant, ordinaryConditions), null, `${reactant} should not decompose at ordinary conditions`);
+    assert.equal(supportedUnaryReaction(reactant, stronglyHeatedConditions)?.id, id);
+  }
+  const copperCarbonate = REACTION_RULES.find((rule) => rule.id === 'copper-carbonate-decomposition');
+  assert.match(copperCarbonate?.limitations || '', /basic carbonate variants/i);
+});
