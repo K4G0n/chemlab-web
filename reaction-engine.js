@@ -79,7 +79,19 @@ export function connectedBodyClusters(bodies, neighborDistance = 72) {
   return clusters;
 }
 
-export function allocateCompactParticipants(bodies, reactants, extent, preserveReactants = {}) {
+export function indexBodiesByComponent(bodies) {
+  const sourcesByComponent = new Map();
+  for (const body of bodies) {
+    for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) {
+      if ((Number(amount) || 0) <= 1e-9) continue;
+      if (!sourcesByComponent.has(id)) sourcesByComponent.set(id, []);
+      sourcesByComponent.get(id).push(body);
+    }
+  }
+  return sourcesByComponent;
+}
+
+export function allocateCompactParticipants(bodies, reactants, extent, preserveReactants = {}, sourcesByComponent = indexBodiesByComponent(bodies)) {
   if (!(extent > 1e-9)) return null;
   let best = null;
   for (const anchor of bodies) {
@@ -87,8 +99,7 @@ export function allocateCompactParticipants(bodies, reactants, extent, preserveR
     let cost = 0;
     let complete = true;
     for (const [id, coefficient] of Object.entries(reactants)) {
-      const sources = bodies
-        .filter((body) => (Number(body?.plugin?.sample?.ledger?.components?.[id]) || 0) > 1e-9)
+      const sources = [...(sourcesByComponent.get(id) || [])]
         .sort((left, right) => squaredDistance(left, anchor) - squaredDistance(right, anchor));
       if (!sources.length) { complete = false; break; }
       if (preserveReactants[id]) {
@@ -120,11 +131,12 @@ export function allocateCompactParticipants(bodies, reactants, extent, preserveR
 function findReactionInCluster(bodies, conditions) {
   const available = {};
   for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
+  const sourcesByComponent = indexBodiesByComponent(bodies);
   for (const rule of REACTION_RULES) {
     if (rule.reactants.length < 2 || !rule.condition(conditions)) continue;
     const plan = planReaction(rule, available);
     if (plan.extent <= 1e-9) continue;
-    const participants = allocateCompactParticipants(bodies, rule.reactantStoichiometry, plan.extent, rule.preserveReactants);
+    const participants = allocateCompactParticipants(bodies, rule.reactantStoichiometry, plan.extent, rule.preserveReactants, sourcesByComponent);
     if (participants) return { rule, extent:plan.extent, plan, participants };
   }
   return null;

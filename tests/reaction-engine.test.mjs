@@ -1,9 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { allocateCompactParticipants, findReactionParticipantBodies, planReaction, spatialNeighborPairs } from '../reaction-engine.js';
+import { allocateCompactParticipants, findReactionParticipantBodies, indexBodiesByComponent, planReaction, spatialNeighborPairs } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
+
+test('component index retains only bodies that supply each positive material amount', () => {
+  const bodies = [
+    { id:'acid', plugin:{sample:{ledger:{components:{HCl:1, H2O:0}}}} },
+    { id:'base', plugin:{sample:{ledger:{components:{NaOH:1, HCl:-1}}}} },
+    { id:'empty', plugin:{sample:{ledger:{components:{HCl:0}}}} }
+  ];
+  const index = indexBodiesByComponent(bodies);
+  assert.deepEqual([...index.entries()].map(([id, sources]) => [id, sources.map(({ id: bodyId }) => bodyId)]), [
+    ['HCl', ['acid']],
+    ['NaOH', ['base']]
+  ]);
+});
 
 test('spatial neighbor pruning yields each nearby candidate pair once across grid boundaries', () => {
   const bodies = [
