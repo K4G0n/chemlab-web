@@ -356,3 +356,19 @@ test('basic oxides absorb curated acidic oxides into spawnable carbonate and sul
   const sulfate = REACTION_RULES.find((rule) => rule.id === 'calcium-oxide-sulfur-trioxide');
   assert.match(sulfate?.limitations || '', /educational oxide-absorption model/i);
 });
+
+test('acidic oxides react with curated alkali and alkaline-earth bases into balanced salts and water', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['CO2', 'KOH'], 'carbon-dioxide-potassium-hydroxide'],
+    [['SO2', 'KOH'], 'sulfur-dioxide-potassium-hydroxide'],
+    [['SO3', 'NaOH'], 'sulfur-trioxide-sodium-hydroxide'],
+    [['SO3', 'KOH'], 'sulfur-trioxide-potassium-hydroxide'],
+    [['SO3', 'CaOH2'], 'sulfur-trioxide-calcium-hydroxide']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['K2CO3', 'K2SO3', 'Na2SO4', 'K2SO4', 'CaSO4']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const sulfate = REACTION_RULES.find((rule) => rule.id === 'sulfur-trioxide-calcium-hydroxide');
+  assert.match(sulfate?.limitations || '', /educational acidic-oxide absorption model/i);
+});
