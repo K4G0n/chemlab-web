@@ -255,7 +255,12 @@ export const REACTION_RULES = [
   rule('calcium-hydroxide-chloride-sodium','precipitation',{CaCl2:1,NaOH:2},{CaOH2:1,NaCl:2},'CaCl₂ + 2NaOH → Ca(OH)₂↓ + 2NaCl',{observable:'white hydroxide precipitate marker'}),
   rule('calcium-hydroxide-chloride-potassium','precipitation',{CaCl2:1,KOH:2},{CaOH2:1,KCl:2},'CaCl₂ + 2KOH → Ca(OH)₂↓ + 2KCl',{observable:'white hydroxide precipitate marker'}),
   rule('calcium-hydroxide-nitrate-sodium','precipitation',{CaNO32:1,NaOH:2},{CaOH2:1,NaNO3:2},'Ca(NO₃)₂ + 2NaOH → Ca(OH)₂↓ + 2NaNO₃',{observable:'white hydroxide precipitate marker'}),
-  rule('calcium-hydroxide-nitrate-potassium','precipitation',{CaNO32:1,KOH:2},{CaOH2:1,KNO3:2},'Ca(NO₃)₂ + 2KOH → Ca(OH)₂↓ + 2KNO₃',{observable:'white hydroxide precipitate marker'})
+  rule('calcium-hydroxide-nitrate-potassium','precipitation',{CaNO32:1,KOH:2},{CaOH2:1,KNO3:2},'Ca(NO₃)₂ + 2KOH → Ca(OH)₂↓ + 2KNO₃',{observable:'white hydroxide precipitate marker'}),
+  rule('barium-sulfate-chloride-potassium','precipitation',{BaCl2:1,K2SO4:1},{BaSO4:1,KCl:2},'BaCl₂ + K₂SO₄ → BaSO₄↓ + 2KCl',{observable:'white precipitate marker'}),
+  rule('calcium-sulfate-chloride-sodium','precipitation',{CaCl2:1,Na2SO4:1},{CaSO4:1,NaCl:2},'CaCl₂ + Na₂SO₄ → CaSO₄↓ + 2NaCl',{observable:'white precipitate marker'}),
+  rule('calcium-sulfate-chloride-potassium','precipitation',{CaCl2:1,K2SO4:1},{CaSO4:1,KCl:2},'CaCl₂ + K₂SO₄ → CaSO₄↓ + 2KCl',{observable:'white precipitate marker'}),
+  rule('calcium-sulfate-nitrate-sodium','precipitation',{CaNO32:1,Na2SO4:1},{CaSO4:1,NaNO3:2},'Ca(NO₃)₂ + Na₂SO₄ → CaSO₄↓ + 2NaNO₃',{observable:'white precipitate marker'}),
+  rule('calcium-sulfate-nitrate-potassium','precipitation',{CaNO32:1,K2SO4:1},{CaSO4:1,KNO3:2},'Ca(NO₃)₂ + K₂SO₄ → CaSO₄↓ + 2KNO₃',{observable:'white precipitate marker'})
 ];
 
 function normalizeFormula(formula) {

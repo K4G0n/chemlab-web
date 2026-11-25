@@ -152,3 +152,16 @@ test('calcium hydroxide precipitation variants conserve nitrate and chloride spe
   for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
   assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('CaOH2'), true, 'CaOH2 must be spawnable');
 });
+
+test('barium and calcium sulfate precipitation variants conserve soluble spectator salts', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['BaCl2', 'K2SO4'], 'barium-sulfate-chloride-potassium'],
+    [['CaCl2', 'Na2SO4'], 'calcium-sulfate-chloride-sodium'],
+    [['CaCl2', 'K2SO4'], 'calcium-sulfate-chloride-potassium'],
+    [['CaNO32', 'Na2SO4'], 'calcium-sulfate-nitrate-sodium'],
+    [['CaNO32', 'K2SO4'], 'calcium-sulfate-nitrate-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('CaSO4'), true, 'CaSO4 must be spawnable');
+});
