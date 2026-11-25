@@ -11,12 +11,9 @@ for (const rule of MULTI_BODY_RULES) for (const id of rule.reactants) {
 
 export function candidateRulesForComponents(componentIds) {
   const available = new Set(componentIds);
-  let candidates = null;
-  for (const id of available) {
-    const indexed = RULES_BY_REACTANT.get(id);
-    if (indexed && (!candidates || indexed.length < candidates.length)) candidates = indexed;
-  }
-  return (candidates || []).filter((rule) => rule.reactants.every((id) => available.has(id)));
+  const candidates = new Set();
+  for (const id of available) for (const rule of RULES_BY_REACTANT.get(id) || []) candidates.add(rule);
+  return [...candidates].filter((rule) => rule.reactants.every((id) => available.has(id)));
 }
 
 export function planReaction(rule, availableAmounts = {}) {
@@ -203,10 +200,20 @@ export function findReactionParticipantBatch(bodies, conditionsForCluster, neigh
     .flatMap((cluster, clusterIndex) => findReactionMatchesInCluster(cluster, resolveConditions(cluster))
       .map((match, matchIndex) => ({ ...match, clusterIndex, matchIndex })));
   candidates.sort((left, right) => compareReactionMatches(left, right) || left.clusterIndex - right.clusterIndex || left.matchIndex - right.matchIndex);
-  const reservedBodies = new Set();
+  const reservedConsumptions = new Map();
   return candidates.filter((match) => {
-    if (match.participants.some(({ body }) => reservedBodies.has(body))) return false;
-    for (const { body } of match.participants) reservedBodies.add(body);
+    for (const { body, consumptions } of match.participants) for (const [id, consumed] of Object.entries(consumptions)) {
+      if (!(consumed > 1e-9)) continue;
+      const available = Number(body.plugin.sample.ledger.components[id]) || 0;
+      const reserved = reservedConsumptions.get(body)?.get(id) || 0;
+      if (reserved + consumed > available + 1e-9) return false;
+    }
+    for (const { body, consumptions } of match.participants) for (const [id, consumed] of Object.entries(consumptions)) {
+      if (!(consumed > 1e-9)) continue;
+      if (!reservedConsumptions.has(body)) reservedConsumptions.set(body, new Map());
+      const reservations = reservedConsumptions.get(body);
+      reservations.set(id, (reservations.get(id) || 0) + consumed);
+    }
     return true;
   });
 }

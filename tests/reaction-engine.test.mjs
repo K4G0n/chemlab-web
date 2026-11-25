@@ -200,6 +200,19 @@ test('batch scheduler resolves equal-priority overlap by stable reaction id', ()
   assert.deepEqual(matches.map(({ rule }) => rule.id), ['hbr-potassium-hydroxide']);
 });
 
+test('batch scheduler permits independent reactions sharing mixture bodies with disjoint consumed components', () => {
+  const bodies = [
+    { id:'acid-mixture', position:{x:0,y:0}, plugin:{sample:{ledger:{components:{HCl:1, HBr:1}}}} },
+    { id:'base-mixture', position:{x:18,y:0}, plugin:{sample:{ledger:{components:{NaOH:1, KOH:1}}}} }
+  ];
+  const matches = findReactionParticipantBatch(bodies, { temperatureK:293, pressureAtm:1 });
+  assert.deepEqual(matches.map(({ rule }) => rule.id), ['hbr-potassium-hydroxide', 'hcl-naoh']);
+  assert.deepEqual(matches.map(({ participants }) => participants.map(({ body, consumptions }) => [body.id, consumptions])), [
+    [['acid-mixture', { HBr:1 }], ['base-mixture', { KOH:1 }]],
+    [['acid-mixture', { HCl:1 }], ['base-mixture', { NaOH:1 }]]
+  ]);
+});
+
 test('participant scheduling consumes a reactant identity across multiple nearby bodies', () => {
   const bodies = [
     { id:'acid-first', position:{x:0,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{CH3COOH:.25}}}} },
