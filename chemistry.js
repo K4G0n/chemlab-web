@@ -99,7 +99,11 @@ export const COMPOUNDS = [
   compound('MgBr2','Magnesium bromide','MgBr₂','Salts','solid',{formulaAscii:'MgBr2'}),
   compound('FeNO32','Iron(II) nitrate','Fe(NO₃)₂','Salts','solid',{formulaAscii:'Fe(NO3)2'}),
   compound('NaI','Sodium iodide','NaI','Salts','solid'),
-  compound('K2SO4','Potassium sulfate','K₂SO₄','Salts','solid',{formulaAscii:'K2SO4'})
+  compound('K2SO4','Potassium sulfate','K₂SO₄','Salts','solid',{formulaAscii:'K2SO4'}),
+  compound('BaCO3','Barium carbonate','BaCO₃','Reaction products','solid',{formulaAscii:'BaCO3',form:'powder',color:'#f4f1df'}),
+  compound('CuCO3','Copper(II) carbonate','CuCO₃','Reaction products','solid',{formulaAscii:'CuCO3',form:'powder',color:'#68a987'}),
+  compound('PbSO4','Lead(II) sulfate','PbSO₄','Reaction products','solid',{formulaAscii:'PbSO4',form:'powder',color:'#f4f1df'}),
+  compound('PbBr2','Lead(II) bromide','PbBr₂','Reaction products','solid',{formulaAscii:'PbBr2',color:'#eee2b7'})
 ];
 
 const MATERIAL_OVERRIDES = { H2O:{representation:'liquid',viscosity:.90,miscibleGroup:'polar',dropletCount:5}, C2H5OH:{representation:'liquid',viscosity:1.07,miscibleGroup:'polar',dropletCount:5}, HCl:{representation:'liquid',viscosity:1.05,miscibleGroup:'polar',dropletCount:5}, NaCl:{representation:'crystal',friction:.55,restitution:.13}, CaCO3:{representation:'powder',friction:.78,restitution:.04}, CO2:{representation:'gas-cloud',diffusion:1.2}, H2:{representation:'gas-cloud',diffusion:2.4}, NH3:{representation:'gas-cloud',diffusion:1.8}, O2:{representation:'gas-cloud',diffusion:1.1}, N2:{representation:'gas-cloud',diffusion:1.15} };
@@ -205,6 +209,15 @@ export const REACTION_RULES = [
   rule('hi-sodium-hydroxide','neutralization',{HI:1,NaOH:1},{NaI:1,H2O:1},'HI + NaOH → NaI + H₂O',{temperatureDeltaK:7}),
   rule('hno3-sodium-hydroxide','neutralization',{HNO3:1,NaOH:1},{NaNO3:1,H2O:1},'HNO₃ + NaOH → NaNO₃ + H₂O',{temperatureDeltaK:7}),
   rule('h2so4-potassium-hydroxide','neutralization',{H2SO4:1,KOH:2},{K2SO4:1,H2O:2},'H₂SO₄ + 2KOH → K₂SO₄ + 2H₂O',{temperatureDeltaK:10}),
+  rule('silver-chloride-potassium','precipitation',{AgNO3:1,KCl:1},{AgCl:1,KNO3:1},'AgNO₃ + KCl → AgCl↓ + KNO₃',{observable:'pale precipitate marker'}),
+  rule('silver-iodide-sodium','precipitation',{AgNO3:1,NaI:1},{AgI:1,NaNO3:1},'AgNO₃ + NaI → AgI↓ + NaNO₃',{observable:'yellow precipitate marker'}),
+  rule('barium-carbonate-precipitate','precipitation',{BaCl2:1,Na2CO3:1},{BaCO3:1,NaCl:2},'BaCl₂ + Na₂CO₃ → BaCO₃↓ + 2NaCl',{observable:'white carbonate precipitate marker'}),
+  rule('barium-sulfate-potassium','precipitation',{BaNO32:1,K2SO4:1},{BaSO4:1,KNO3:2},'Ba(NO₃)₂ + K₂SO₄ → BaSO₄↓ + 2KNO₃',{observable:'white precipitate marker'}),
+  rule('copper-hydroxide-potassium','precipitation',{CuSO4:1,KOH:2},{CuOH2:1,K2SO4:1},'CuSO₄ + 2KOH → Cu(OH)₂↓ + K₂SO₄',{observable:'blue precipitate marker'}),
+  rule('copper-carbonate-precipitate','precipitation',{CuSO4:1,Na2CO3:1},{CuCO3:1,Na2SO4:1},'CuSO₄ + Na₂CO₃ → CuCO₃↓ + Na₂SO₄',{observable:'green carbonate precipitate marker'}),
+  rule('iron-hydroxide-potassium','precipitation',{FeCl3:1,KOH:3},{FeOH3:1,KCl:3},'FeCl₃ + 3KOH → Fe(OH)₃↓ + 3KCl',{observable:'brown precipitate marker'}),
+  rule('lead-sulfate-precipitate','precipitation',{PbNO32:1,Na2SO4:1},{PbSO4:1,NaNO3:2},'Pb(NO₃)₂ + Na₂SO₄ → PbSO₄↓ + 2NaNO₃',{observable:'white precipitate marker'}),
+  rule('lead-bromide-precipitate','precipitation',{PbNO32:1,KBr:2},{PbBr2:1,KNO3:2},'Pb(NO₃)₂ + 2KBr → PbBr₂↓ + 2KNO₃',{observable:'pale precipitate marker'}),
   rule('ethene-hydration-acid-catalyzed','catalyzed addition',{C2H4:1,H2O:1,H2SO4:1},{C2H5OH:1},'C₂H₄ + H₂O —(simulated acid catalyst, heat)→ C₂H₅OH',{condition:heated,preserveReactants:{H2SO4:1},selectionPriority:10,temperatureDeltaK:2,observable:'ethanol product marker',limitations:'Virtual educational catalysis event; sulfuric acid is preserved as a catalyst and no real-world procedure is modeled.'}),
   rule('esterification-acid-catalyzed','catalyzed condensation',{CH3COOH:1,C2H5OH:1,H2SO4:1},{CH3COOC2H5:1,H2O:1},'CH₃COOH + C₂H₅OH —(simulated acid catalyst, heat)→ CH₃COOC₂H₅ + H₂O',{condition:heated,preserveReactants:{H2SO4:1},selectionPriority:10,temperatureDeltaK:1,observable:'ester product marker',limitations:'Virtual educational catalysis event; sulfuric acid is preserved as a catalyst and no real-world procedure is modeled.'})
 ];

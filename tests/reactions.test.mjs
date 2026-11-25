@@ -70,3 +70,21 @@ test('acid-catalyzed esterification is selected at simulated heat while its unca
   assert.deepEqual(rule?.preserveReactants, { H2SO4:1 });
   assert.equal(supportedReaction(['CH3COOH', 'C2H5OH'], { temperatureK:720, pressureAtm:1 })?.id, 'esterification');
 });
+
+test('expanded precipitation families provide balanced cross-salt outcomes with spawnable products', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['AgNO3', 'KCl'], 'silver-chloride-potassium'],
+    [['AgNO3', 'NaI'], 'silver-iodide-sodium'],
+    [['BaCl2', 'Na2CO3'], 'barium-carbonate-precipitate'],
+    [['BaNO32', 'K2SO4'], 'barium-sulfate-potassium'],
+    [['CuSO4', 'KOH'], 'copper-hydroxide-potassium'],
+    [['CuSO4', 'Na2CO3'], 'copper-carbonate-precipitate'],
+    [['FeCl3', 'KOH'], 'iron-hydroxide-potassium'],
+    [['PbNO32', 'Na2SO4'], 'lead-sulfate-precipitate'],
+    [['PbNO32', 'KBr'], 'lead-bromide-precipitate']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['BaCO3', 'CuCO3', 'PbSO4', 'PbBr2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
