@@ -109,3 +109,20 @@ test('carbonate and halide precipitation variants preserve spectator salts and e
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
   for (const id of ['K2CO3', 'MgNO32', 'PbCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
+
+test('magnesium and zinc hydroxide precipitation variants conserve spectator salts and expose products', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['MgSO4', 'NaOH'], 'magnesium-hydroxide-sulfate-sodium'],
+    [['MgSO4', 'KOH'], 'magnesium-hydroxide-sulfate-potassium'],
+    [['MgCl2', 'NaOH'], 'magnesium-hydroxide-chloride-sodium'],
+    [['MgCl2', 'KOH'], 'magnesium-hydroxide-chloride-potassium'],
+    [['ZnSO4', 'NaOH'], 'zinc-hydroxide-sulfate-sodium'],
+    [['ZnSO4', 'KOH'], 'zinc-hydroxide-sulfate-potassium'],
+    [['ZnCl2', 'NaOH'], 'zinc-hydroxide-chloride-sodium'],
+    [['ZnCl2', 'KOH'], 'zinc-hydroxide-chloride-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgOH2', 'ZnOH2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
