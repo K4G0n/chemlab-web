@@ -245,3 +245,19 @@ test('iron(II) salts provide distinct hydroxide and educational carbonate precip
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
   for (const id of ['FeOH2', 'FeCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
+
+test('magnesium(II) salts provide carbonate outcomes with balanced spectator salts', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['MgCl2', 'Na2CO3'], 'magnesium-carbonate-chloride-sodium'],
+    [['MgCl2', 'K2CO3'], 'magnesium-carbonate-chloride-potassium'],
+    [['MgSO4', 'Na2CO3'], 'magnesium-carbonate-sulfate-sodium'],
+    [['MgSO4', 'K2CO3'], 'magnesium-carbonate-sulfate-potassium'],
+    [['MgNO32', 'Na2CO3'], 'magnesium-carbonate-nitrate-sodium'],
+    [['MgNO32', 'K2CO3'], 'magnesium-carbonate-nitrate-potassium'],
+    [['MgBr2', 'Na2CO3'], 'magnesium-carbonate-bromide-sodium'],
+    [['MgBr2', 'K2CO3'], 'magnesium-carbonate-bromide-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('MgCO3'), true, 'MgCO3 must be spawnable');
+});
