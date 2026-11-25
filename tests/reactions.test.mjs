@@ -37,6 +37,24 @@ test('sodium-water requires a complete two-sodium stoichiometric set', () => {
   assert.equal(rule?.requiresWholeStoichiometricSet, true);
 });
 
+test('curated alkali and alkaline-earth water reactions produce spawnable hydroxides and hydrogen only from complete sets', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['K', 'H2O'], 'potassium-water'],
+    [['Ca', 'H2O'], 'calcium-water'],
+    [['Mg', 'H2O'], 'magnesium-water']
+  ];
+  for (const [reactants, id] of expectedRules) {
+    const rule = supportedReaction(reactants, conditions);
+    assert.equal(rule?.id, id);
+    assert.equal(rule?.requiresWholeStoichiometricSet, true);
+  }
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['KOH', 'CaOH2', 'MgOH2', 'H2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const magnesium = REACTION_RULES.find((rule) => rule.id === 'magnesium-water');
+  assert.match(magnesium?.limitations || '', /educational water-reaction model/i);
+});
+
 test('unary decomposition rules are independently indexed and condition-gated', () => {
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:293, pressureAtm:1 }), null);
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:850, pressureAtm:1 })?.id, 'limestone-decomposition');
