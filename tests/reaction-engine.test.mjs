@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { allocateCompactParticipants, candidateRulesForComponents, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
+import { allocateCompactParticipants, candidateRulesForComponents, collisionClusterForBodies, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
 
@@ -71,6 +71,17 @@ test('spatial neighbor pruning yields each nearby candidate pair once across gri
     ['left', 'nearby'],
     ['right', 'nearby']
   ]);
+});
+
+test('collision cluster includes connected catalyst bodies near an otherwise binary collision', () => {
+  const ethene = { id:'ethene', position:{x:0,y:0} };
+  const water = { id:'water', position:{x:18,y:0} };
+  const catalyst = { id:'catalyst', position:{x:54,y:0} };
+  const isolated = { id:'isolated', position:{x:180,y:0} };
+  assert.deepEqual(
+    collisionClusterForBodies([ethene, water, catalyst, isolated], [ethene, water]).map(({ id }) => id),
+    ['ethene', 'water', 'catalyst']
+  );
 });
 
 test('compact participant allocation selects one shared local source group for multi-reactant rules', () => {

@@ -96,6 +96,12 @@ export function connectedBodyClusters(bodies, neighborDistance = 72) {
   return clusters;
 }
 
+export function collisionClusterForBodies(bodies, collisionBodies, neighborDistance = 72) {
+  const seeds = new Set(collisionBodies || []);
+  if (!seeds.size || [...seeds].some(body => !bodies.includes(body))) return [];
+  return connectedBodyClusters(bodies, neighborDistance).find(cluster => [...seeds].every(body => cluster.includes(body))) || [];
+}
+
 export function indexBodiesByComponent(bodies) {
   const sourcesByComponent = new Map();
   for (const body of bodies) {
