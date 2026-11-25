@@ -260,7 +260,10 @@ export const REACTION_RULES = [
   rule('calcium-sulfate-chloride-sodium','precipitation',{CaCl2:1,Na2SO4:1},{CaSO4:1,NaCl:2},'CaCl₂ + Na₂SO₄ → CaSO₄↓ + 2NaCl',{observable:'white precipitate marker'}),
   rule('calcium-sulfate-chloride-potassium','precipitation',{CaCl2:1,K2SO4:1},{CaSO4:1,KCl:2},'CaCl₂ + K₂SO₄ → CaSO₄↓ + 2KCl',{observable:'white precipitate marker'}),
   rule('calcium-sulfate-nitrate-sodium','precipitation',{CaNO32:1,Na2SO4:1},{CaSO4:1,NaNO3:2},'Ca(NO₃)₂ + Na₂SO₄ → CaSO₄↓ + 2NaNO₃',{observable:'white precipitate marker'}),
-  rule('calcium-sulfate-nitrate-potassium','precipitation',{CaNO32:1,K2SO4:1},{CaSO4:1,KNO3:2},'Ca(NO₃)₂ + K₂SO₄ → CaSO₄↓ + 2KNO₃',{observable:'white precipitate marker'})
+  rule('calcium-sulfate-nitrate-potassium','precipitation',{CaNO32:1,K2SO4:1},{CaSO4:1,KNO3:2},'Ca(NO₃)₂ + K₂SO₄ → CaSO₄↓ + 2KNO₃',{observable:'white precipitate marker'}),
+  rule('calcium-carbonate-chloride-potassium','precipitation',{CaCl2:1,K2CO3:1},{CaCO3:1,KCl:2},'CaCl₂ + K₂CO₃ → CaCO₃↓ + 2KCl',{observable:'white carbonate precipitate marker'}),
+  rule('calcium-carbonate-nitrate-sodium','precipitation',{CaNO32:1,Na2CO3:1},{CaCO3:1,NaNO3:2},'Ca(NO₃)₂ + Na₂CO₃ → CaCO₃↓ + 2NaNO₃',{observable:'white carbonate precipitate marker'}),
+  rule('calcium-carbonate-nitrate-potassium','precipitation',{CaNO32:1,K2CO3:1},{CaCO3:1,KNO3:2},'Ca(NO₃)₂ + K₂CO₃ → CaCO₃↓ + 2KNO₃',{observable:'white carbonate precipitate marker'})
 ];
 
 function normalizeFormula(formula) {

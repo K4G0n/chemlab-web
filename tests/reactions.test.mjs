@@ -165,3 +165,14 @@ test('barium and calcium sulfate precipitation variants conserve soluble spectat
   for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
   assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('CaSO4'), true, 'CaSO4 must be spawnable');
 });
+
+test('calcium carbonate precipitation completes the curated calcium salt and alkali-carbonate matrix', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['CaCl2', 'K2CO3'], 'calcium-carbonate-chloride-potassium'],
+    [['CaNO32', 'Na2CO3'], 'calcium-carbonate-nitrate-sodium'],
+    [['CaNO32', 'K2CO3'], 'calcium-carbonate-nitrate-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('CaCO3'), true, 'CaCO3 must be spawnable');
+});
