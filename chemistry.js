@@ -95,6 +95,7 @@ export const COMPOUNDS = [
   compound('CaBr2','Calcium bromide','CaBr₂','Salts','solid',{formulaAscii:'CaBr2'}),
   compound('CaSO4','Calcium sulfate','CaSO₄','Salts','solid',{formulaAscii:'CaSO4'}),
   compound('MgSO4','Magnesium sulfate','MgSO₄','Salts','solid',{formulaAscii:'MgSO4'}),
+  compound('MgSO3','Magnesium sulfite','MgSO₃','Salts','solid',{formulaAscii:'MgSO3',form:'powder',color:'#f4f1df'}),
   compound('Fe2SO43','Iron(III) sulfate','Fe₂(SO₄)₃','Salts','solid',{formulaAscii:'Fe2(SO4)3'}),
   compound('AgI','Silver iodide','AgI','Reaction products','solid',{color:'#f2de77'}),
   compound('PbCl2','Lead(II) chloride','PbCl₂','Reaction products','solid',{formulaAscii:'PbCl2'}),
@@ -109,6 +110,7 @@ export const COMPOUNDS = [
   compound('MgNO32','Magnesium nitrate','Mg(NO₃)₂','Salts','solid',{formulaAscii:'Mg(NO3)2'}),
   compound('NaI','Sodium iodide','NaI','Salts','solid'),
   compound('K2SO4','Potassium sulfate','K₂SO₄','Salts','solid',{formulaAscii:'K2SO4'}),
+  compound('K2SO3','Potassium sulfite','K₂SO₃','Salts','solid',{formulaAscii:'K2SO3'}),
   compound('K2CO3','Potassium carbonate','K₂CO₃','Salts','solid',{formulaAscii:'K2CO3'}),
   compound('BaCO3','Barium carbonate','BaCO₃','Reaction products','solid',{formulaAscii:'BaCO3',form:'powder',color:'#f4f1df'}),
   compound('CuCO3','Copper(II) carbonate','CuCO₃','Reaction products','solid',{formulaAscii:'CuCO3',form:'powder',color:'#68a987'}),
@@ -334,7 +336,15 @@ export const REACTION_RULES = [
   rule('hydrobromic-sodium-sulfite','gas formation',{Na2SO3:1,HBr:2},{NaBr:2,H2O:1,SO2:1},'Na₂SO₃ + 2HBr → 2NaBr + H₂O + SO₂↑',{temperatureDeltaK:-2,observable:'sulfur dioxide gas marker',explanation:'A curated acid–sulfite simulation that tracks sulfur dioxide as a gaseous product.',limitations:'Educational gas-formation model; no real-world preparation conditions or gas-handling guidance is simulated.'}),
   rule('hydrochloric-sodium-sulfide','gas formation',{Na2S:1,HCl:2},{NaCl:2,H2S:1},'Na₂S + 2HCl → 2NaCl + H₂S↑',{temperatureDeltaK:-2,observable:'hydrogen sulfide gas marker',explanation:'A curated acid–sulfide simulation that tracks hydrogen sulfide as a gaseous product.',limitations:'Educational gas-formation model; no real-world preparation conditions or gas-handling guidance is simulated.'}),
   rule('hydrobromic-sodium-sulfide','gas formation',{Na2S:1,HBr:2},{NaBr:2,H2S:1},'Na₂S + 2HBr → 2NaBr + H₂S↑',{temperatureDeltaK:-2,observable:'hydrogen sulfide gas marker',explanation:'A curated acid–sulfide simulation that tracks hydrogen sulfide as a gaseous product.',limitations:'Educational gas-formation model; no real-world preparation conditions or gas-handling guidance is simulated.'}),
-  rule('sodium-sulfide-synthesis','synthesis',{Na:2,S:1},{Na2S:1},'2Na + S → Na₂S',{temperatureDeltaK:10,observable:'sodium sulfide product marker',explanation:'A curated element-combination pathway that makes the sodium sulfide ledger identity available to the simulation.',limitations:'Virtual educational salt-formation event; no real-world procedure is modeled.'})
+  rule('sodium-sulfide-synthesis','synthesis',{Na:2,S:1},{Na2S:1},'2Na + S → Na₂S',{temperatureDeltaK:10,observable:'sodium sulfide product marker',explanation:'A curated element-combination pathway that makes the sodium sulfide ledger identity available to the simulation.',limitations:'Virtual educational salt-formation event; no real-world procedure is modeled.'}),
+  rule('sodium-oxide-carbon-dioxide','oxide salt formation',{Na2O:1,CO2:1},{Na2CO3:1},'Na₂O + CO₂ → Na₂CO₃',{observable:'sodium carbonate product marker',explanation:'A curated basic-oxide and acidic-oxide combination that tracks sodium carbonate.',limitations:'Educational oxide-absorption model; no real-world operating conditions or kinetics are simulated.'}),
+  rule('potassium-oxide-carbon-dioxide','oxide salt formation',{K2O:1,CO2:1},{K2CO3:1},'K₂O + CO₂ → K₂CO₃',{observable:'potassium carbonate product marker',explanation:'A curated basic-oxide and acidic-oxide combination that tracks potassium carbonate.',limitations:'Educational oxide-absorption model; no real-world operating conditions or kinetics are simulated.'}),
+  rule('magnesium-oxide-carbon-dioxide','oxide salt formation',{MgO:1,CO2:1},{MgCO3:1},'MgO + CO₂ → MgCO₃',{observable:'magnesium carbonate product marker',explanation:'A curated basic-oxide and acidic-oxide combination that tracks magnesium carbonate.',limitations:'Educational oxide-absorption model; hydrated and basic magnesium carbonate variants are not simulated.'}),
+  rule('sodium-oxide-sulfur-dioxide','oxide salt formation',{Na2O:1,SO2:1},{Na2SO3:1},'Na₂O + SO₂ → Na₂SO₃',{observable:'sodium sulfite product marker',explanation:'A curated basic-oxide and acidic-oxide combination that tracks sodium sulfite.',limitations:'Educational oxide-absorption model; no real-world operating conditions or kinetics are simulated.'}),
+  rule('potassium-oxide-sulfur-dioxide','oxide salt formation',{K2O:1,SO2:1},{K2SO3:1},'K₂O + SO₂ → K₂SO₃',{observable:'potassium sulfite product marker',explanation:'A curated basic-oxide and acidic-oxide combination that tracks potassium sulfite.',limitations:'Educational oxide-absorption model; no real-world operating conditions or kinetics are simulated.'}),
+  rule('magnesium-oxide-sulfur-dioxide','oxide salt formation',{MgO:1,SO2:1},{MgSO3:1},'MgO + SO₂ → MgSO₃',{observable:'magnesium sulfite product marker',explanation:'A curated basic-oxide and acidic-oxide combination that tracks magnesium sulfite.',limitations:'Educational oxide-absorption model; hydrated sulfite forms and kinetics are not simulated.'}),
+  rule('calcium-oxide-sulfur-dioxide','oxide salt formation',{CaO:1,SO2:1},{CaSO3:1},'CaO + SO₂ → CaSO₃',{observable:'calcium sulfite product marker',explanation:'A curated basic-oxide and acidic-oxide combination that tracks calcium sulfite.',limitations:'Educational oxide-absorption model; no real-world operating conditions or kinetics are simulated.'}),
+  rule('calcium-oxide-sulfur-trioxide','oxide salt formation',{CaO:1,SO3:1},{CaSO4:1},'CaO + SO₃ → CaSO₄',{observable:'calcium sulfate product marker',explanation:'A curated basic-oxide and acidic-oxide combination that tracks calcium sulfate.',limitations:'Educational oxide-absorption model; no real-world operating conditions or kinetics are simulated.'})
 ];
 
 function normalizeFormula(formula) {

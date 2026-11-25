@@ -337,3 +337,22 @@ test('curated sulfite and sulfide acid reactions expose gas products and a precu
   const sulfide = REACTION_RULES.find((rule) => rule.id === 'hydrochloric-sodium-sulfide');
   assert.match(sulfide?.limitations || '', /educational gas-formation model/i);
 });
+
+test('basic oxides absorb curated acidic oxides into spawnable carbonate and sulfite or sulfate salts', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['Na2O', 'CO2'], 'sodium-oxide-carbon-dioxide'],
+    [['K2O', 'CO2'], 'potassium-oxide-carbon-dioxide'],
+    [['MgO', 'CO2'], 'magnesium-oxide-carbon-dioxide'],
+    [['Na2O', 'SO2'], 'sodium-oxide-sulfur-dioxide'],
+    [['K2O', 'SO2'], 'potassium-oxide-sulfur-dioxide'],
+    [['MgO', 'SO2'], 'magnesium-oxide-sulfur-dioxide'],
+    [['CaO', 'SO2'], 'calcium-oxide-sulfur-dioxide'],
+    [['CaO', 'SO3'], 'calcium-oxide-sulfur-trioxide']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgSO3', 'K2SO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const sulfate = REACTION_RULES.find((rule) => rule.id === 'calcium-oxide-sulfur-trioxide');
+  assert.match(sulfate?.limitations || '', /educational oxide-absorption model/i);
+});
