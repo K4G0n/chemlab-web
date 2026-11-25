@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { allocateCompactParticipants, candidateRulesForComponents, collisionClusterForBodies, findBestReactionParticipantBodies, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
+import { allocateCompactParticipants, candidateRulesForComponents, collisionClusterForBodies, findBestReactionParticipantBodies, findReactionParticipantBatch, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
 
@@ -169,6 +169,35 @@ test('cluster scheduler retains each local temperature while prioritizing matche
     pressureAtm:1
   }));
   assert.equal(match?.rule.id, 'ethene-hydration-acid-catalyzed');
+});
+
+test('batch scheduler returns every independent local reaction in deterministic priority order', () => {
+  const bodies = [
+    { id:'acid-a', position:{x:0,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} },
+    { id:'base-a', position:{x:18,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{NaOH:1}}}} },
+    { id:'ethene', position:{x:180,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{C2H4:1}}}} },
+    { id:'water', position:{x:198,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{H2O:1}}}} },
+    { id:'catalyst', position:{x:216,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{H2SO4:1}}}} },
+    { id:'acid-b', position:{x:360,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{HCl:1}}}} },
+    { id:'base-b', position:{x:378,y:0}, plugin:{sample:{temperatureK:293, ledger:{components:{NaOH:1}}}} }
+  ];
+  const matches = findReactionParticipantBatch(bodies, (cluster) => ({
+    temperatureK:cluster.reduce((total, body) => total + body.plugin.sample.temperatureK, 0) / cluster.length,
+    pressureAtm:1
+  }));
+  assert.deepEqual(matches.map(({ rule }) => rule.id), ['ethene-hydration-acid-catalyzed', 'hcl-naoh', 'hcl-naoh']);
+  assert.deepEqual(matches.map(({ participants }) => participants.map(({ body }) => body.id)), [
+    ['ethene', 'water', 'catalyst'], ['acid-a', 'base-a'], ['acid-b', 'base-b']
+  ]);
+});
+
+test('batch scheduler resolves equal-priority overlap by stable reaction id', () => {
+  const bodies = [
+    { id:'acid', position:{x:0,y:0}, plugin:{sample:{ledger:{components:{HCl:1, HBr:1}}}} },
+    { id:'base', position:{x:18,y:0}, plugin:{sample:{ledger:{components:{KOH:1}}}} }
+  ];
+  const matches = findReactionParticipantBatch(bodies, { temperatureK:293, pressureAtm:1 });
+  assert.deepEqual(matches.map(({ rule }) => rule.id), ['hbr-potassium-hydroxide']);
 });
 
 test('participant scheduling consumes a reactant identity across multiple nearby bodies', () => {

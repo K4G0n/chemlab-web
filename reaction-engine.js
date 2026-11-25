@@ -181,7 +181,7 @@ export function compareReactionMatches(left, right) {
   return left.rule.id.localeCompare(right.rule.id);
 }
 
-function findReactionInCluster(bodies, conditions) {
+function findReactionMatchesInCluster(bodies, conditions) {
   const available = {};
   for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
   const sourcesByComponent = indexBodiesByComponent(bodies);
@@ -194,15 +194,25 @@ function findReactionInCluster(bodies, conditions) {
     const participants = allocateCompactParticipants(bodies, rule.reactantStoichiometry, plan.extent, rule.preserveReactants, sourcesByComponent, rankedSourcesByAnchor);
     if (participants) matches.push({ rule, extent:plan.extent, plan, participants });
   }
-  return matches.sort(compareReactionMatches)[0] || null;
+  return matches.sort(compareReactionMatches);
+}
+
+export function findReactionParticipantBatch(bodies, conditionsForCluster, neighborDistance = 72) {
+  const resolveConditions = typeof conditionsForCluster === 'function' ? conditionsForCluster : () => conditionsForCluster || {};
+  const candidates = connectedBodyClusters(bodies, neighborDistance)
+    .flatMap((cluster, clusterIndex) => findReactionMatchesInCluster(cluster, resolveConditions(cluster))
+      .map((match, matchIndex) => ({ ...match, clusterIndex, matchIndex })));
+  candidates.sort((left, right) => compareReactionMatches(left, right) || left.clusterIndex - right.clusterIndex || left.matchIndex - right.matchIndex);
+  const reservedBodies = new Set();
+  return candidates.filter((match) => {
+    if (match.participants.some(({ body }) => reservedBodies.has(body))) return false;
+    for (const { body } of match.participants) reservedBodies.add(body);
+    return true;
+  });
 }
 
 export function findBestReactionParticipantBodies(bodies, conditionsForCluster, neighborDistance = 72) {
-  const resolveConditions = typeof conditionsForCluster === 'function' ? conditionsForCluster : () => conditionsForCluster || {};
-  const matches = connectedBodyClusters(bodies, neighborDistance)
-    .map(cluster => findReactionInCluster(cluster, resolveConditions(cluster)))
-    .filter(Boolean);
-  return matches.sort(compareReactionMatches)[0] || null;
+  return findReactionParticipantBatch(bodies, conditionsForCluster, neighborDistance)[0] || null;
 }
 
 export function findReactionParticipantBodies(bodies, conditions = {}, neighborDistance = 72) {
