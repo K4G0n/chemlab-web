@@ -302,3 +302,22 @@ test('alkali nitrate decompositions are spawnable and require simulated high tem
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
   for (const id of ['NaNO2', 'KNO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
+
+test('curated divalent metal nitrate decompositions require simulated high temperature and expose nitrogen dioxide', () => {
+  const ordinaryConditions = { temperatureK:293, pressureAtm:1 };
+  const stronglyHeatedConditions = { temperatureK:700, pressureAtm:1 };
+  const expectedRules = [
+    ['MgNO32', 'magnesium-nitrate-decomposition'],
+    ['CaNO32', 'calcium-nitrate-decomposition'],
+    ['ZnNO32', 'zinc-nitrate-decomposition'],
+    ['CuNO32', 'copper-nitrate-decomposition']
+  ];
+  for (const [reactant, id] of expectedRules) {
+    assert.equal(supportedUnaryReaction(reactant, ordinaryConditions), null, `${reactant} should not decompose at ordinary conditions`);
+    assert.equal(supportedUnaryReaction(reactant, stronglyHeatedConditions)?.id, id);
+  }
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  assert.equal(spawnableIds.has('NO2'), true, 'NO2 must be spawnable');
+  const copperNitrate = REACTION_RULES.find((rule) => rule.id === 'copper-nitrate-decomposition');
+  assert.match(copperNitrate?.limitations || '', /educational thermal decomposition model/i);
+});
