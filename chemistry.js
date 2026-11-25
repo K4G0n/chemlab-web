@@ -108,7 +108,8 @@ export const COMPOUNDS = [
   compound('PbBr2','Lead(II) bromide','PbBr₂','Reaction products','solid',{formulaAscii:'PbBr2',color:'#eee2b7'}),
   compound('PbCO3','Lead(II) carbonate','PbCO₃','Reaction products','solid',{formulaAscii:'PbCO3',form:'powder',color:'#f4f1df'}),
   compound('MgOH2','Magnesium hydroxide','Mg(OH)₂','Reaction products','solid',{formulaAscii:'Mg(OH)2',form:'powder',color:'#f4f1df'}),
-  compound('ZnOH2','Zinc hydroxide','Zn(OH)₂','Reaction products','solid',{formulaAscii:'Zn(OH)2',form:'powder',color:'#f4f1df'})
+  compound('ZnOH2','Zinc hydroxide','Zn(OH)₂','Reaction products','solid',{formulaAscii:'Zn(OH)2',form:'powder',color:'#f4f1df'}),
+  compound('AlOH3','Aluminium hydroxide','Al(OH)₃','Reaction products','solid',{formulaAscii:'Al(OH)3',form:'powder',color:'#f4f1df'})
 ];
 
 const MATERIAL_OVERRIDES = { H2O:{representation:'liquid',viscosity:.90,miscibleGroup:'polar',dropletCount:5}, C2H5OH:{representation:'liquid',viscosity:1.07,miscibleGroup:'polar',dropletCount:5}, HCl:{representation:'liquid',viscosity:1.05,miscibleGroup:'polar',dropletCount:5}, NaCl:{representation:'crystal',friction:.55,restitution:.13}, CaCO3:{representation:'powder',friction:.78,restitution:.04}, CO2:{representation:'gas-cloud',diffusion:1.2}, H2:{representation:'gas-cloud',diffusion:2.4}, NH3:{representation:'gas-cloud',diffusion:1.8}, O2:{representation:'gas-cloud',diffusion:1.1}, N2:{representation:'gas-cloud',diffusion:1.15} };
@@ -244,7 +245,13 @@ export const REACTION_RULES = [
   rule('zinc-hydroxide-sulfate-sodium','precipitation',{ZnSO4:1,NaOH:2},{ZnOH2:1,Na2SO4:1},'ZnSO₄ + 2NaOH → Zn(OH)₂↓ + Na₂SO₄',{observable:'white hydroxide precipitate marker'}),
   rule('zinc-hydroxide-sulfate-potassium','precipitation',{ZnSO4:1,KOH:2},{ZnOH2:1,K2SO4:1},'ZnSO₄ + 2KOH → Zn(OH)₂↓ + K₂SO₄',{observable:'white hydroxide precipitate marker'}),
   rule('zinc-hydroxide-chloride-sodium','precipitation',{ZnCl2:1,NaOH:2},{ZnOH2:1,NaCl:2},'ZnCl₂ + 2NaOH → Zn(OH)₂↓ + 2NaCl',{observable:'white hydroxide precipitate marker'}),
-  rule('zinc-hydroxide-chloride-potassium','precipitation',{ZnCl2:1,KOH:2},{ZnOH2:1,KCl:2},'ZnCl₂ + 2KOH → Zn(OH)₂↓ + 2KCl',{observable:'white hydroxide precipitate marker'})
+  rule('zinc-hydroxide-chloride-potassium','precipitation',{ZnCl2:1,KOH:2},{ZnOH2:1,KCl:2},'ZnCl₂ + 2KOH → Zn(OH)₂↓ + 2KCl',{observable:'white hydroxide precipitate marker'}),
+  rule('aluminium-hydroxide-chloride-sodium','precipitation',{AlCl3:1,NaOH:3},{AlOH3:1,NaCl:3},'AlCl₃ + 3NaOH → Al(OH)₃↓ + 3NaCl',{observable:'white hydroxide precipitate marker'}),
+  rule('aluminium-hydroxide-chloride-potassium','precipitation',{AlCl3:1,KOH:3},{AlOH3:1,KCl:3},'AlCl₃ + 3KOH → Al(OH)₃↓ + 3KCl',{observable:'white hydroxide precipitate marker'}),
+  rule('aluminium-hydroxide-sulfate-sodium','precipitation',{Al2SO43:1,NaOH:6},{AlOH3:2,Na2SO4:3},'Al₂(SO₄)₃ + 6NaOH → 2Al(OH)₃↓ + 3Na₂SO₄',{observable:'white hydroxide precipitate marker'}),
+  rule('aluminium-hydroxide-sulfate-potassium','precipitation',{Al2SO43:1,KOH:6},{AlOH3:2,K2SO4:3},'Al₂(SO₄)₃ + 6KOH → 2Al(OH)₃↓ + 3K₂SO₄',{observable:'white hydroxide precipitate marker'}),
+  rule('iron-hydroxide-sulfate-sodium','precipitation',{Fe2SO43:1,NaOH:6},{FeOH3:2,Na2SO4:3},'Fe₂(SO₄)₃ + 6NaOH → 2Fe(OH)₃↓ + 3Na₂SO₄',{observable:'brown hydroxide precipitate marker'}),
+  rule('iron-hydroxide-sulfate-potassium','precipitation',{Fe2SO43:1,KOH:6},{FeOH3:2,K2SO4:3},'Fe₂(SO₄)₃ + 6KOH → 2Fe(OH)₃↓ + 3K₂SO₄',{observable:'brown hydroxide precipitate marker'})
 ];
 
 function normalizeFormula(formula) {

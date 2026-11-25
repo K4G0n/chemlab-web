@@ -126,3 +126,17 @@ test('magnesium and zinc hydroxide precipitation variants conserve spectator sal
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
   for (const id of ['MgOH2', 'ZnOH2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
+
+test('aluminium and iron(III) sulfate hydroxide precipitation variants preserve balanced spectator salts', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['AlCl3', 'NaOH'], 'aluminium-hydroxide-chloride-sodium'],
+    [['AlCl3', 'KOH'], 'aluminium-hydroxide-chloride-potassium'],
+    [['Al2SO43', 'NaOH'], 'aluminium-hydroxide-sulfate-sodium'],
+    [['Al2SO43', 'KOH'], 'aluminium-hydroxide-sulfate-potassium'],
+    [['Fe2SO43', 'NaOH'], 'iron-hydroxide-sulfate-sodium'],
+    [['Fe2SO43', 'KOH'], 'iron-hydroxide-sulfate-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  assert.equal(new Set(COMPOUNDS.map((compound) => compound.id)).has('AlOH3'), true, 'AlOH3 must be spawnable');
+});
