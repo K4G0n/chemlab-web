@@ -213,6 +213,23 @@ test('batch scheduler permits independent reactions sharing mixture bodies with 
   ]);
 });
 
+test('batch scheduler clips a lower-priority match to the unreserved amount of an overlapping component', () => {
+  const bodies = [
+    { id:'acid-mixture', position:{x:0,y:0}, plugin:{sample:{ledger:{components:{HCl:1.5}}}} },
+    { id:'base-mixture', position:{x:18,y:0}, plugin:{sample:{ledger:{components:{NaOH:1, KOH:1}}}} }
+  ];
+  const matches = findReactionParticipantBatch(bodies, { temperatureK:293, pressureAtm:1 });
+  assert.deepEqual(matches.map(({ rule, extent }) => [rule.id, extent]), [
+    ['hcl-naoh', 1],
+    ['hcl-potassium-hydroxide', .5]
+  ]);
+  assert.deepEqual(matches[1].participants.map(({ body, consumptions }) => [body.id, consumptions]), [
+    ['acid-mixture', { HCl:.5 }],
+    ['base-mixture', { KOH:.5 }]
+  ]);
+  assert.deepEqual(matches[1].plan.products, { KCl:.5, H2O:.5 });
+});
+
 test('participant scheduling consumes a reactant identity across multiple nearby bodies', () => {
   const bodies = [
     { id:'acid-first', position:{x:0,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{CH3COOH:.25}}}} },

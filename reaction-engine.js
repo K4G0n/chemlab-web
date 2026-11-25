@@ -131,7 +131,7 @@ export function rankComponentSourcesByAnchor(anchor, sourcesByComponent, cache =
   return ranked;
 }
 
-export function allocateCompactParticipants(bodies, reactants, extent, preserveReactants = {}, sourcesByComponent = indexBodiesByComponent(bodies), rankedSourcesByAnchor = null) {
+export function allocateCompactParticipants(bodies, reactants, extent, preserveReactants = {}, sourcesByComponent = indexBodiesByComponent(bodies), rankedSourcesByAnchor = null, reservedConsumptions = null) {
   if (!(extent > 1e-9)) return null;
   let best = null;
   for (const anchor of bodies) {
@@ -150,7 +150,9 @@ export function allocateCompactParticipants(bodies, reactants, extent, preserveR
       }
       let required = coefficient * extent;
       for (const body of sources) {
-        const amount = Number(body.plugin.sample.ledger.components[id]) || 0;
+        const available = Number(body.plugin.sample.ledger.components[id]) || 0;
+        const reserved = reservedConsumptions?.get(body)?.get(id) || 0;
+        const amount = Math.max(0, available - reserved);
         const consumed = Math.min(amount, required);
         if (consumed > 1e-9) {
           allocations.set(body, { ...(allocations.get(body) || {}), [id]:consumed });
@@ -194,28 +196,45 @@ function findReactionMatchesInCluster(bodies, conditions) {
   return matches.sort(compareReactionMatches);
 }
 
+function availableAmountsAfterReservations(bodies, reservedConsumptions) {
+  const available = {};
+  for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) {
+    const reserved = reservedConsumptions.get(body)?.get(id) || 0;
+    available[id] = (available[id] || 0) + Math.max(0, (Number(amount) || 0) - reserved);
+  }
+  return available;
+}
+
 export function findReactionParticipantBatch(bodies, conditionsForCluster, neighborDistance = 72) {
   const resolveConditions = typeof conditionsForCluster === 'function' ? conditionsForCluster : () => conditionsForCluster || {};
   const candidates = connectedBodyClusters(bodies, neighborDistance)
     .flatMap((cluster, clusterIndex) => findReactionMatchesInCluster(cluster, resolveConditions(cluster))
-      .map((match, matchIndex) => ({ ...match, clusterIndex, matchIndex })));
+      .map((match, matchIndex) => ({ ...match, bodies:cluster, clusterIndex, matchIndex })));
   candidates.sort((left, right) => compareReactionMatches(left, right) || left.clusterIndex - right.clusterIndex || left.matchIndex - right.matchIndex);
   const reservedConsumptions = new Map();
-  return candidates.filter((match) => {
-    for (const { body, consumptions } of match.participants) for (const [id, consumed] of Object.entries(consumptions)) {
-      if (!(consumed > 1e-9)) continue;
-      const available = Number(body.plugin.sample.ledger.components[id]) || 0;
-      const reserved = reservedConsumptions.get(body)?.get(id) || 0;
-      if (reserved + consumed > available + 1e-9) return false;
-    }
-    for (const { body, consumptions } of match.participants) for (const [id, consumed] of Object.entries(consumptions)) {
+  const accepted = [];
+  for (const match of candidates) {
+    const plan = planReaction(match.rule, availableAmountsAfterReservations(match.bodies, reservedConsumptions));
+    if (plan.extent <= 1e-9) continue;
+    const participants = allocateCompactParticipants(
+      match.bodies,
+      match.rule.reactantStoichiometry,
+      plan.extent,
+      match.rule.preserveReactants,
+      indexBodiesByComponent(match.bodies),
+      new Map(),
+      reservedConsumptions
+    );
+    if (!participants) continue;
+    for (const { body, consumptions } of participants) for (const [id, consumed] of Object.entries(consumptions)) {
       if (!(consumed > 1e-9)) continue;
       if (!reservedConsumptions.has(body)) reservedConsumptions.set(body, new Map());
       const reservations = reservedConsumptions.get(body);
       reservations.set(id, (reservations.get(id) || 0) + consumed);
     }
-    return true;
-  });
+    accepted.push({ ...match, extent:plan.extent, plan, participants });
+  }
+  return accepted;
 }
 
 export function findBestReactionParticipantBodies(bodies, conditionsForCluster, neighborDistance = 72) {
