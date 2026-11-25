@@ -12,7 +12,7 @@ ChemLab is a browser-based **2D physics sandbox** for exploring periodic-table r
 - 24 bundled compounds and material samples, including common liquids/gases, salts, acids/bases, reaction products, and simplified solution markers.
 - Functional starter tools: beaker, heater plate, cooling plate, thermometer, pH meter, magnetic stirrer, airflow fan, pressure chamber, digital scale, and safety shield.
 - Conditions: temperature, pressure, gravity, simulation speed, pause, optional grid.
-- Object operations: select, drag, throw, rectangle multiselect, duplicate, rotate, freeze, delete, undo/redo, and right-click context actions.
+- Object operations: select, drag/hold, throw, rectangle multiselect, duplicate, freeze, delete, undo/redo, and right-click context actions.
 - Local scene save/load and a Discovery Notebook that records only implemented rule-based reactions.
 
 ## Controls
@@ -25,7 +25,7 @@ ChemLab is a browser-based **2D physics sandbox** for exploring periodic-table r
 - **Mouse wheel** — zoom at cursor
 - **Space** — pause/resume
 - **G** — slow motion
-- **R / Shift+R** — rotate selected object(s)
+- **A / D while holding an object** — rotate counter-clockwise / clockwise
 - **F** — freeze/unfreeze selected object(s)
 - **Delete / Backspace** — delete selection
 - **Ctrl+D** — duplicate
