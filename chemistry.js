@@ -98,6 +98,7 @@ export const COMPOUNDS = [
   compound('NH4OH','Ammonium hydroxide','NH₄OH','Acids and bases','liquid',{formulaAscii:'NH4OH',miscibleGroup:'polar'}),
   compound('CaSO3','Calcium sulfite','CaSO₃','Salts','solid',{formulaAscii:'CaSO3'}),
   compound('ZnBr2','Zinc bromide','ZnBr₂','Salts','solid',{formulaAscii:'ZnBr2'}),
+  compound('ZnNO32','Zinc nitrate','Zn(NO₃)₂','Salts','solid',{formulaAscii:'Zn(NO3)2'}),
   compound('MgBr2','Magnesium bromide','MgBr₂','Salts','solid',{formulaAscii:'MgBr2'}),
   compound('FeNO32','Iron(II) nitrate','Fe(NO₃)₂','Salts','solid',{formulaAscii:'Fe(NO3)2'}),
   compound('MgNO32','Magnesium nitrate','Mg(NO₃)₂','Salts','solid',{formulaAscii:'Mg(NO3)2'}),
@@ -111,6 +112,7 @@ export const COMPOUNDS = [
   compound('PbCO3','Lead(II) carbonate','PbCO₃','Reaction products','solid',{formulaAscii:'PbCO3',form:'powder',color:'#f4f1df'}),
   compound('MgOH2','Magnesium hydroxide','Mg(OH)₂','Reaction products','solid',{formulaAscii:'Mg(OH)2',form:'powder',color:'#f4f1df'}),
   compound('ZnOH2','Zinc hydroxide','Zn(OH)₂','Reaction products','solid',{formulaAscii:'Zn(OH)2',form:'powder',color:'#f4f1df'}),
+  compound('ZnCO3','Zinc carbonate','ZnCO₃','Reaction products','solid',{formulaAscii:'ZnCO3',form:'powder',color:'#f4f1df'}),
   compound('AlOH3','Aluminium hydroxide','Al(OH)₃','Reaction products','solid',{formulaAscii:'Al(OH)3',form:'powder',color:'#f4f1df'})
 ];
 
@@ -278,7 +280,15 @@ export const REACTION_RULES = [
   rule('copper-hydroxide-bromide-sodium','precipitation',{CuBr2:1,NaOH:2},{CuOH2:1,NaBr:2},'CuBr₂ + 2NaOH → Cu(OH)₂↓ + 2NaBr',{observable:'blue hydroxide precipitate marker'}),
   rule('copper-hydroxide-bromide-potassium','precipitation',{CuBr2:1,KOH:2},{CuOH2:1,KBr:2},'CuBr₂ + 2KOH → Cu(OH)₂↓ + 2KBr',{observable:'blue hydroxide precipitate marker'}),
   rule('copper-carbonate-bromide-sodium','precipitation',{CuBr2:1,Na2CO3:1},{CuCO3:1,NaBr:2},'CuBr₂ + Na₂CO₃ → CuCO₃↓ + 2NaBr',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
-  rule('copper-carbonate-bromide-potassium','precipitation',{CuBr2:1,K2CO3:1},{CuCO3:1,KBr:2},'CuBr₂ + K₂CO₃ → CuCO₃↓ + 2KBr',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'})
+  rule('copper-carbonate-bromide-potassium','precipitation',{CuBr2:1,K2CO3:1},{CuCO3:1,KBr:2},'CuBr₂ + K₂CO₃ → CuCO₃↓ + 2KBr',{observable:'green carbonate precipitate marker',limitations:'Educational copper(II) carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('zinc-hydroxide-nitrate-sodium','precipitation',{ZnNO32:1,NaOH:2},{ZnOH2:1,NaNO3:2},'Zn(NO₃)₂ + 2NaOH → Zn(OH)₂↓ + 2NaNO₃',{observable:'white hydroxide precipitate marker'}),
+  rule('zinc-hydroxide-nitrate-potassium','precipitation',{ZnNO32:1,KOH:2},{ZnOH2:1,KNO3:2},'Zn(NO₃)₂ + 2KOH → Zn(OH)₂↓ + 2KNO₃',{observable:'white hydroxide precipitate marker'}),
+  rule('zinc-carbonate-nitrate-sodium','precipitation',{ZnNO32:1,Na2CO3:1},{ZnCO3:1,NaNO3:2},'Zn(NO₃)₂ + Na₂CO₃ → ZnCO₃↓ + 2NaNO₃',{observable:'white carbonate precipitate marker',limitations:'Educational zinc carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('zinc-carbonate-nitrate-potassium','precipitation',{ZnNO32:1,K2CO3:1},{ZnCO3:1,KNO3:2},'Zn(NO₃)₂ + K₂CO₃ → ZnCO₃↓ + 2KNO₃',{observable:'white carbonate precipitate marker',limitations:'Educational zinc carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('zinc-hydroxide-bromide-sodium','precipitation',{ZnBr2:1,NaOH:2},{ZnOH2:1,NaBr:2},'ZnBr₂ + 2NaOH → Zn(OH)₂↓ + 2NaBr',{observable:'white hydroxide precipitate marker'}),
+  rule('zinc-hydroxide-bromide-potassium','precipitation',{ZnBr2:1,KOH:2},{ZnOH2:1,KBr:2},'ZnBr₂ + 2KOH → Zn(OH)₂↓ + 2KBr',{observable:'white hydroxide precipitate marker'}),
+  rule('zinc-carbonate-bromide-sodium','precipitation',{ZnBr2:1,Na2CO3:1},{ZnCO3:1,NaBr:2},'ZnBr₂ + Na₂CO₃ → ZnCO₃↓ + 2NaBr',{observable:'white carbonate precipitate marker',limitations:'Educational zinc carbonate precipitation approximation; no laboratory prediction is implied.'}),
+  rule('zinc-carbonate-bromide-potassium','precipitation',{ZnBr2:1,K2CO3:1},{ZnCO3:1,KBr:2},'ZnBr₂ + K₂CO₃ → ZnCO₃↓ + 2KBr',{observable:'white carbonate precipitate marker',limitations:'Educational zinc carbonate precipitation approximation; no laboratory prediction is implied.'})
 ];
 
 function normalizeFormula(formula) {

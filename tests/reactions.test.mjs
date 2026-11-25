@@ -207,3 +207,20 @@ test('copper(II) nitrate and bromide salts extend the balanced hydroxide and car
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
   for (const id of ['CuNO32', 'CuBr2', 'CuOH2', 'CuCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
+
+test('zinc(II) nitrate and bromide salts extend the balanced hydroxide and carbonate precipitation matrix', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['ZnNO32', 'NaOH'], 'zinc-hydroxide-nitrate-sodium'],
+    [['ZnNO32', 'KOH'], 'zinc-hydroxide-nitrate-potassium'],
+    [['ZnNO32', 'Na2CO3'], 'zinc-carbonate-nitrate-sodium'],
+    [['ZnNO32', 'K2CO3'], 'zinc-carbonate-nitrate-potassium'],
+    [['ZnBr2', 'NaOH'], 'zinc-hydroxide-bromide-sodium'],
+    [['ZnBr2', 'KOH'], 'zinc-hydroxide-bromide-potassium'],
+    [['ZnBr2', 'Na2CO3'], 'zinc-carbonate-bromide-sodium'],
+    [['ZnBr2', 'K2CO3'], 'zinc-carbonate-bromide-potassium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['ZnNO32', 'ZnBr2', 'ZnOH2', 'ZnCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
