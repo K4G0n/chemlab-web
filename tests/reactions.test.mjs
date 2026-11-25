@@ -88,3 +88,24 @@ test('expanded precipitation families provide balanced cross-salt outcomes with 
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
   for (const id of ['BaCO3', 'CuCO3', 'PbSO4', 'PbBr2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
+
+test('carbonate and halide precipitation variants preserve spectator salts and expose new products', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['BaNO32', 'Na2CO3'], 'barium-carbonate-nitrate'],
+    [['BaCl2', 'K2CO3'], 'barium-carbonate-potassium'],
+    [['BaNO32', 'K2CO3'], 'barium-carbonate-nitrate-potassium'],
+    [['PbNO32', 'Na2CO3'], 'lead-carbonate-precipitate'],
+    [['PbNO32', 'K2CO3'], 'lead-carbonate-potassium'],
+    [['PbNO32', 'CaCl2'], 'lead-chloride-calcium'],
+    [['PbNO32', 'CaBr2'], 'lead-bromide-calcium'],
+    [['AgNO3', 'CaBr2'], 'silver-bromide-calcium'],
+    [['AgNO3', 'MgCl2'], 'silver-chloride-magnesium'],
+    [['AgNO3', 'MgBr2'], 'silver-bromide-magnesium'],
+    [['PbNO32', 'MgCl2'], 'lead-chloride-magnesium'],
+    [['PbNO32', 'MgBr2'], 'lead-bromide-magnesium']
+  ];
+  for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['K2CO3', 'MgNO32', 'PbCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});

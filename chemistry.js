@@ -98,12 +98,15 @@ export const COMPOUNDS = [
   compound('ZnBr2','Zinc bromide','ZnBr₂','Salts','solid',{formulaAscii:'ZnBr2'}),
   compound('MgBr2','Magnesium bromide','MgBr₂','Salts','solid',{formulaAscii:'MgBr2'}),
   compound('FeNO32','Iron(II) nitrate','Fe(NO₃)₂','Salts','solid',{formulaAscii:'Fe(NO3)2'}),
+  compound('MgNO32','Magnesium nitrate','Mg(NO₃)₂','Salts','solid',{formulaAscii:'Mg(NO3)2'}),
   compound('NaI','Sodium iodide','NaI','Salts','solid'),
   compound('K2SO4','Potassium sulfate','K₂SO₄','Salts','solid',{formulaAscii:'K2SO4'}),
+  compound('K2CO3','Potassium carbonate','K₂CO₃','Salts','solid',{formulaAscii:'K2CO3'}),
   compound('BaCO3','Barium carbonate','BaCO₃','Reaction products','solid',{formulaAscii:'BaCO3',form:'powder',color:'#f4f1df'}),
   compound('CuCO3','Copper(II) carbonate','CuCO₃','Reaction products','solid',{formulaAscii:'CuCO3',form:'powder',color:'#68a987'}),
   compound('PbSO4','Lead(II) sulfate','PbSO₄','Reaction products','solid',{formulaAscii:'PbSO4',form:'powder',color:'#f4f1df'}),
-  compound('PbBr2','Lead(II) bromide','PbBr₂','Reaction products','solid',{formulaAscii:'PbBr2',color:'#eee2b7'})
+  compound('PbBr2','Lead(II) bromide','PbBr₂','Reaction products','solid',{formulaAscii:'PbBr2',color:'#eee2b7'}),
+  compound('PbCO3','Lead(II) carbonate','PbCO₃','Reaction products','solid',{formulaAscii:'PbCO3',form:'powder',color:'#f4f1df'})
 ];
 
 const MATERIAL_OVERRIDES = { H2O:{representation:'liquid',viscosity:.90,miscibleGroup:'polar',dropletCount:5}, C2H5OH:{representation:'liquid',viscosity:1.07,miscibleGroup:'polar',dropletCount:5}, HCl:{representation:'liquid',viscosity:1.05,miscibleGroup:'polar',dropletCount:5}, NaCl:{representation:'crystal',friction:.55,restitution:.13}, CaCO3:{representation:'powder',friction:.78,restitution:.04}, CO2:{representation:'gas-cloud',diffusion:1.2}, H2:{representation:'gas-cloud',diffusion:2.4}, NH3:{representation:'gas-cloud',diffusion:1.8}, O2:{representation:'gas-cloud',diffusion:1.1}, N2:{representation:'gas-cloud',diffusion:1.15} };
@@ -219,7 +222,19 @@ export const REACTION_RULES = [
   rule('lead-sulfate-precipitate','precipitation',{PbNO32:1,Na2SO4:1},{PbSO4:1,NaNO3:2},'Pb(NO₃)₂ + Na₂SO₄ → PbSO₄↓ + 2NaNO₃',{observable:'white precipitate marker'}),
   rule('lead-bromide-precipitate','precipitation',{PbNO32:1,KBr:2},{PbBr2:1,KNO3:2},'Pb(NO₃)₂ + 2KBr → PbBr₂↓ + 2KNO₃',{observable:'pale precipitate marker'}),
   rule('ethene-hydration-acid-catalyzed','catalyzed addition',{C2H4:1,H2O:1,H2SO4:1},{C2H5OH:1},'C₂H₄ + H₂O —(simulated acid catalyst, heat)→ C₂H₅OH',{condition:heated,preserveReactants:{H2SO4:1},selectionPriority:10,temperatureDeltaK:2,observable:'ethanol product marker',limitations:'Virtual educational catalysis event; sulfuric acid is preserved as a catalyst and no real-world procedure is modeled.'}),
-  rule('esterification-acid-catalyzed','catalyzed condensation',{CH3COOH:1,C2H5OH:1,H2SO4:1},{CH3COOC2H5:1,H2O:1},'CH₃COOH + C₂H₅OH —(simulated acid catalyst, heat)→ CH₃COOC₂H₅ + H₂O',{condition:heated,preserveReactants:{H2SO4:1},selectionPriority:10,temperatureDeltaK:1,observable:'ester product marker',limitations:'Virtual educational catalysis event; sulfuric acid is preserved as a catalyst and no real-world procedure is modeled.'})
+  rule('esterification-acid-catalyzed','catalyzed condensation',{CH3COOH:1,C2H5OH:1,H2SO4:1},{CH3COOC2H5:1,H2O:1},'CH₃COOH + C₂H₅OH —(simulated acid catalyst, heat)→ CH₃COOC₂H₅ + H₂O',{condition:heated,preserveReactants:{H2SO4:1},selectionPriority:10,temperatureDeltaK:1,observable:'ester product marker',limitations:'Virtual educational catalysis event; sulfuric acid is preserved as a catalyst and no real-world procedure is modeled.'}),
+  rule('barium-carbonate-nitrate','precipitation',{BaNO32:1,Na2CO3:1},{BaCO3:1,NaNO3:2},'Ba(NO₃)₂ + Na₂CO₃ → BaCO₃↓ + 2NaNO₃',{observable:'white carbonate precipitate marker'}),
+  rule('barium-carbonate-potassium','precipitation',{BaCl2:1,K2CO3:1},{BaCO3:1,KCl:2},'BaCl₂ + K₂CO₃ → BaCO₃↓ + 2KCl',{observable:'white carbonate precipitate marker'}),
+  rule('barium-carbonate-nitrate-potassium','precipitation',{BaNO32:1,K2CO3:1},{BaCO3:1,KNO3:2},'Ba(NO₃)₂ + K₂CO₃ → BaCO₃↓ + 2KNO₃',{observable:'white carbonate precipitate marker'}),
+  rule('lead-carbonate-precipitate','precipitation',{PbNO32:1,Na2CO3:1},{PbCO3:1,NaNO3:2},'Pb(NO₃)₂ + Na₂CO₃ → PbCO₃↓ + 2NaNO₃',{observable:'white carbonate precipitate marker'}),
+  rule('lead-carbonate-potassium','precipitation',{PbNO32:1,K2CO3:1},{PbCO3:1,KNO3:2},'Pb(NO₃)₂ + K₂CO₃ → PbCO₃↓ + 2KNO₃',{observable:'white carbonate precipitate marker'}),
+  rule('lead-chloride-calcium','precipitation',{PbNO32:1,CaCl2:1},{PbCl2:1,CaNO32:1},'Pb(NO₃)₂ + CaCl₂ → PbCl₂↓ + Ca(NO₃)₂',{observable:'pale precipitate marker'}),
+  rule('lead-bromide-calcium','precipitation',{PbNO32:1,CaBr2:1},{PbBr2:1,CaNO32:1},'Pb(NO₃)₂ + CaBr₂ → PbBr₂↓ + Ca(NO₃)₂',{observable:'pale precipitate marker'}),
+  rule('silver-bromide-calcium','precipitation',{AgNO3:2,CaBr2:1},{AgBr:2,CaNO32:1},'2AgNO₃ + CaBr₂ → 2AgBr↓ + Ca(NO₃)₂',{observable:'pale precipitate marker'}),
+  rule('silver-chloride-magnesium','precipitation',{AgNO3:2,MgCl2:1},{AgCl:2,MgNO32:1},'2AgNO₃ + MgCl₂ → 2AgCl↓ + Mg(NO₃)₂',{observable:'pale precipitate marker'}),
+  rule('silver-bromide-magnesium','precipitation',{AgNO3:2,MgBr2:1},{AgBr:2,MgNO32:1},'2AgNO₃ + MgBr₂ → 2AgBr↓ + Mg(NO₃)₂',{observable:'pale precipitate marker'}),
+  rule('lead-chloride-magnesium','precipitation',{PbNO32:1,MgCl2:1},{PbCl2:1,MgNO32:1},'Pb(NO₃)₂ + MgCl₂ → PbCl₂↓ + Mg(NO₃)₂',{observable:'pale precipitate marker'}),
+  rule('lead-bromide-magnesium','precipitation',{PbNO32:1,MgBr2:1},{PbBr2:1,MgNO32:1},'Pb(NO₃)₂ + MgBr₂ → PbBr₂↓ + Mg(NO₃)₂',{observable:'pale precipitate marker'})
 ];
 
 function normalizeFormula(formula) {
