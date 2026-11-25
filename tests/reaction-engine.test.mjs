@@ -120,6 +120,19 @@ test('participant matching schedules three-reactant rules across distinct nearby
   ]);
 });
 
+test('participant scheduling prefers a complete catalyst-aware rule over a less-specific rule', () => {
+  const bodies = [
+    { id:'ethene', position:{x:0,y:0}, plugin:{sample:{ledger:{components:{C2H4:1}}}} },
+    { id:'water', position:{x:18,y:0}, plugin:{sample:{ledger:{components:{H2O:1}}}} },
+    { id:'catalyst', position:{x:36,y:0}, plugin:{sample:{ledger:{components:{H2SO4:1}}}} }
+  ];
+  const match = findReactionParticipantBodies(bodies, { temperatureK:480, pressureAtm:5 });
+  assert.equal(match?.rule.id, 'ethene-hydration-acid-catalyzed');
+  assert.deepEqual(match?.participants.map(({ body, consumptions }) => [body.id, consumptions]), [
+    ['ethene', { C2H4:1 }], ['water', { H2O:1 }], ['catalyst', { H2SO4:0 }]
+  ]);
+});
+
 test('participant scheduling consumes a reactant identity across multiple nearby bodies', () => {
   const bodies = [
     { id:'acid-first', position:{x:0,y:0}, plugin:{sample:{temperatureK:480, ledger:{components:{CH3COOH:.25}}}} },

@@ -165,19 +165,30 @@ export function allocateCompactParticipants(bodies, reactants, extent, preserveR
   return best?.participants || null;
 }
 
+// Selection is data-driven and deterministic: curator priority wins, then the
+// more specific complete reactant set, then the stable registry id.
+export function compareReactionMatches(left, right) {
+  const priorityDifference = (Number(right.rule.selectionPriority) || 0) - (Number(left.rule.selectionPriority) || 0);
+  if (priorityDifference) return priorityDifference;
+  const specificityDifference = right.rule.reactants.length - left.rule.reactants.length;
+  if (specificityDifference) return specificityDifference;
+  return left.rule.id.localeCompare(right.rule.id);
+}
+
 function findReactionInCluster(bodies, conditions) {
   const available = {};
   for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
   const sourcesByComponent = indexBodiesByComponent(bodies);
   const rankedSourcesByAnchor = new Map();
+  const matches = [];
   for (const rule of candidateRulesForComponents(sourcesByComponent.keys())) {
     if (!rule.condition(conditions)) continue;
     const plan = planReaction(rule, available);
     if (plan.extent <= 1e-9) continue;
     const participants = allocateCompactParticipants(bodies, rule.reactantStoichiometry, plan.extent, rule.preserveReactants, sourcesByComponent, rankedSourcesByAnchor);
-    if (participants) return { rule, extent:plan.extent, plan, participants };
+    if (participants) matches.push({ rule, extent:plan.extent, plan, participants });
   }
-  return null;
+  return matches.sort(compareReactionMatches)[0] || null;
 }
 
 export function findReactionParticipantBodies(bodies, conditions = {}, neighborDistance = 72) {
