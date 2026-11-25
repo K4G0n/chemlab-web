@@ -91,16 +91,24 @@ export function indexBodiesByComponent(bodies) {
   return sourcesByComponent;
 }
 
-export function allocateCompactParticipants(bodies, reactants, extent, preserveReactants = {}, sourcesByComponent = indexBodiesByComponent(bodies)) {
+export function rankComponentSourcesByAnchor(anchor, sourcesByComponent, cache = null) {
+  if (cache?.has(anchor)) return cache.get(anchor);
+  const ranked = new Map([...sourcesByComponent].map(([id, sources]) => [id, [...sources]
+    .sort((left, right) => squaredDistance(left, anchor) - squaredDistance(right, anchor))]));
+  cache?.set(anchor, ranked);
+  return ranked;
+}
+
+export function allocateCompactParticipants(bodies, reactants, extent, preserveReactants = {}, sourcesByComponent = indexBodiesByComponent(bodies), rankedSourcesByAnchor = null) {
   if (!(extent > 1e-9)) return null;
   let best = null;
   for (const anchor of bodies) {
+    const rankedSources = rankComponentSourcesByAnchor(anchor, sourcesByComponent, rankedSourcesByAnchor);
     const allocations = new Map();
     let cost = 0;
     let complete = true;
     for (const [id, coefficient] of Object.entries(reactants)) {
-      const sources = [...(sourcesByComponent.get(id) || [])]
-        .sort((left, right) => squaredDistance(left, anchor) - squaredDistance(right, anchor));
+      const sources = rankedSources.get(id) || [];
       if (!sources.length) { complete = false; break; }
       if (preserveReactants[id]) {
         const source = sources[0];
@@ -132,11 +140,12 @@ function findReactionInCluster(bodies, conditions) {
   const available = {};
   for (const body of bodies) for (const [id, amount] of Object.entries(body?.plugin?.sample?.ledger?.components || {})) available[id] = (available[id] || 0) + (Number(amount) || 0);
   const sourcesByComponent = indexBodiesByComponent(bodies);
+  const rankedSourcesByAnchor = new Map();
   for (const rule of REACTION_RULES) {
     if (rule.reactants.length < 2 || !rule.condition(conditions)) continue;
     const plan = planReaction(rule, available);
     if (plan.extent <= 1e-9) continue;
-    const participants = allocateCompactParticipants(bodies, rule.reactantStoichiometry, plan.extent, rule.preserveReactants, sourcesByComponent);
+    const participants = allocateCompactParticipants(bodies, rule.reactantStoichiometry, plan.extent, rule.preserveReactants, sourcesByComponent, rankedSourcesByAnchor);
     if (participants) return { rule, extent:plan.extent, plan, participants };
   }
   return null;

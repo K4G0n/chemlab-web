@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { allocateCompactParticipants, findReactionParticipantBodies, indexBodiesByComponent, planReaction, spatialNeighborPairs } from '../reaction-engine.js';
+import { allocateCompactParticipants, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
 
@@ -16,6 +16,29 @@ test('component index retains only bodies that supply each positive material amo
     ['HCl', ['acid']],
     ['NaOH', ['base']]
   ]);
+});
+
+test('component source ranking orders each material index once by proximity to an anchor', () => {
+  const acidNear = { id:'acid-near', position:{x:2,y:0} };
+  const acidFar = { id:'acid-far', position:{x:20,y:0} };
+  const baseNear = { id:'base-near', position:{x:4,y:0} };
+  const ranked = rankComponentSourcesByAnchor({ position:{x:0, y:0} }, new Map([
+    ['HCl', [acidFar, acidNear]],
+    ['NaOH', [baseNear]]
+  ]));
+  assert.deepEqual([...ranked.entries()].map(([id, sources]) => [id, sources.map(source => source.id)]), [
+    ['HCl', ['acid-near', 'acid-far']],
+    ['NaOH', ['base-near']]
+  ]);
+});
+
+test('component source ranking reuses a supplied anchor cache during one reaction scan', () => {
+  const anchor = { position:{x:0, y:0} };
+  const cache = new Map();
+  const sources = new Map([['HCl', [{ id:'acid', position:{x:2,y:0} }]]]);
+  const first = rankComponentSourcesByAnchor(anchor, sources, cache);
+  const second = rankComponentSourcesByAnchor(anchor, sources, cache);
+  assert.strictEqual(second, first);
 });
 
 test('spatial neighbor pruning yields each nearby candidate pair once across grid boundaries', () => {
