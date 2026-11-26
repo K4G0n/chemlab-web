@@ -74,6 +74,15 @@ test('curated metal plus sulfuric acid reactions yield catalog-backed sulfates a
   assert.match(aluminium?.limitations || '', /educational metal-acid model/i);
 });
 
+test('copper(II) oxide and sulfuric acid yield catalog-backed copper(II) sulfate and water', () => {
+  const rule = supportedReaction(['CuO', 'H2SO4'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'copper-oxide-sulfuric');
+  assert.deepEqual(rule?.reactantStoichiometry, { CuO:1, H2SO4:1 });
+  assert.deepEqual(rule?.productStoichiometry, { CuSO4:1, H2O:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['CuSO4', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
+
 test('unary decomposition rules are independently indexed and condition-gated', () => {
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:293, pressureAtm:1 }), null);
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:850, pressureAtm:1 })?.id, 'limestone-decomposition');
