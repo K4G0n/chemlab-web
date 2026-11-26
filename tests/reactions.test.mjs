@@ -55,6 +55,25 @@ test('curated alkali and alkaline-earth water reactions produce spawnable hydrox
   assert.match(magnesium?.limitations || '', /educational water-reaction model/i);
 });
 
+test('curated metal plus sulfuric acid reactions yield catalog-backed sulfates and hydrogen from complete sets', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedRules = [
+    [['Mg', 'H2SO4'], 'magnesium-sulfuric-acid-displacement'],
+    [['Zn', 'H2SO4'], 'zinc-sulfuric-acid-displacement'],
+    [['Fe', 'H2SO4'], 'iron-sulfuric-acid-displacement'],
+    [['Al', 'H2SO4'], 'aluminium-sulfuric-acid-displacement']
+  ];
+  for (const [reactants, id] of expectedRules) {
+    const rule = supportedReaction(reactants, conditions);
+    assert.equal(rule?.id, id);
+    assert.equal(rule?.requiresWholeStoichiometricSet, true);
+  }
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgSO4', 'ZnSO4', 'FeSO4', 'Al2SO43', 'H2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const aluminium = REACTION_RULES.find((rule) => rule.id === 'aluminium-sulfuric-acid-displacement');
+  assert.match(aluminium?.limitations || '', /educational metal-acid model/i);
+});
+
 test('unary decomposition rules are independently indexed and condition-gated', () => {
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:293, pressureAtm:1 }), null);
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:850, pressureAtm:1 })?.id, 'limestone-decomposition');
