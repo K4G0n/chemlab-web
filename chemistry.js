@@ -215,6 +215,7 @@ export const REACTION_RULES = [
   rule('hydrobromic-calcium-carbonate','gas formation',{HBr:2,CaCO3:1},{CaBr2:1,H2O:1,CO2:1},'CaCO₃ + 2HBr → CaBr₂ + H₂O + CO₂↑',{temperatureDeltaK:-3}),
   rule('calcium-hydroxide-hcl','neutralization',{CaOH2:1,HCl:2},{CaCl2:1,H2O:2},'Ca(OH)₂ + 2HCl → CaCl₂ + 2H₂O',{temperatureDeltaK:9}),
   rule('calcium-hydroxide-sulfuric','neutralization',{CaOH2:1,H2SO4:1},{CaSO4:1,H2O:2},'Ca(OH)₂ + H₂SO₄ → CaSO₄ + 2H₂O',{temperatureDeltaK:9}),
+  rule('calcium-hydroxide-nitric','neutralization',{CaOH2:1,HNO3:2},{CaNO32:1,H2O:2},'Ca(OH)₂ + 2HNO₃ → Ca(NO₃)₂ + 2H₂O',{temperatureDeltaK:9,limitations:'Educational acid-base neutralization model; solution concentration and reaction rates are not simulated.'}),
   rule('magnesium-oxide-sulfuric','acid-metal-oxide',{MgO:1,H2SO4:1},{MgSO4:1,H2O:1},'MgO + H₂SO₄ → MgSO₄ + H₂O'),
   rule('zinc-oxide-sulfuric','acid-metal-oxide',{ZnO:1,H2SO4:1},{ZnSO4:1,H2O:1},'ZnO + H₂SO₄ → ZnSO₄ + H₂O'),
   rule('calcium-oxide-sulfuric','acid-metal-oxide',{CaO:1,H2SO4:1},{CaSO4:1,H2O:1},'CaO + H₂SO₄ → CaSO₄ + H₂O',{observable:'calcium sulfate marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
