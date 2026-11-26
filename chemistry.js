@@ -219,6 +219,7 @@ export const REACTION_RULES = [
   rule('magnesium-oxide-sulfuric','acid-metal-oxide',{MgO:1,H2SO4:1},{MgSO4:1,H2O:1},'MgO + H₂SO₄ → MgSO₄ + H₂O'),
   rule('zinc-oxide-sulfuric','acid-metal-oxide',{ZnO:1,H2SO4:1},{ZnSO4:1,H2O:1},'ZnO + H₂SO₄ → ZnSO₄ + H₂O'),
   rule('calcium-oxide-sulfuric','acid-metal-oxide',{CaO:1,H2SO4:1},{CaSO4:1,H2O:1},'CaO + H₂SO₄ → CaSO₄ + H₂O',{observable:'calcium sulfate marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
+  rule('calcium-oxide-hydrochloric','acid-metal-oxide',{CaO:1,HCl:2},{CaCl2:1,H2O:1},'CaO + 2HCl → CaCl₂ + H₂O',{observable:'calcium chloride marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
   rule('iron-oxide-hcl','acid-metal-oxide',{Fe2O3:1,HCl:6},{FeCl3:2,H2O:3},'Fe₂O₃ + 6HCl → 2FeCl₃ + 3H₂O'),
   rule('iron-oxide-sulfuric','acid-metal-oxide',{Fe2O3:1,H2SO4:3},{Fe2SO43:1,H2O:3},'Fe₂O₃ + 3H₂SO₄ → Fe₂(SO₄)₃ + 3H₂O'),
   rule('silver-iodide-precipitate','precipitation',{AgNO3:1,KI:1},{AgI:1,KNO3:1},'AgNO₃ + KI → AgI↓ + KNO₃',{observable:'yellow precipitate marker'}),
