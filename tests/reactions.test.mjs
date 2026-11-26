@@ -119,6 +119,15 @@ test('magnesium oxide and nitric acid yield catalog-backed magnesium nitrate and
   for (const id of ['MgO', 'HNO3', 'MgNO32', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
 
+test('zinc oxide and nitric acid yield catalog-backed zinc nitrate and water', () => {
+  const rule = supportedReaction(['ZnO', 'HNO3'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'zinc-oxide-nitric');
+  assert.deepEqual(rule?.reactantStoichiometry, { ZnO:1, HNO3:2 });
+  assert.deepEqual(rule?.productStoichiometry, { ZnNO32:1, H2O:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['ZnO', 'HNO3', 'ZnNO32', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
+
 test('aluminium oxide and hydrochloric acid yield catalog-backed aluminium chloride and water', () => {
   const rule = supportedReaction(['Al2O3', 'HCl'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'aluminium-oxide-hydrochloric');
