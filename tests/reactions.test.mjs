@@ -181,6 +181,16 @@ test('iron(III) oxide and hydrobromic acid yield catalog-backed iron(III) bromid
   for (const id of ['Fe2O3', 'HBr', 'FeBr3', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
 
+test('iron and hydroiodic acid yield catalog-backed iron(II) iodide and hydrogen', () => {
+  const rule = supportedReaction(['Fe', 'HI'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'iron-hydroiodic-displacement');
+  assert.deepEqual(rule?.reactantStoichiometry, { Fe:1, HI:2 });
+  assert.deepEqual(rule?.productStoichiometry, { FeI2:1, H2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['HI', 'FeI2', 'H2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational metal-acid model/i);
+});
+
 test('calcium hydroxide and nitric acid yield catalog-backed calcium nitrate and water', () => {
   const rule = supportedReaction(['CaOH2', 'HNO3'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'calcium-hydroxide-nitric');
