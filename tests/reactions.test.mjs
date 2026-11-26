@@ -651,3 +651,13 @@ test('sodium oxide and sulfur trioxide yield catalog-backed sodium sulfate', () 
   for (const id of ['Na2O', 'SO3', 'Na2SO4']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
   assert.match(rule?.limitations || '', /educational oxide-absorption model/i);
 });
+
+test('potassium oxide and sulfur trioxide yield catalog-backed potassium sulfate', () => {
+  const rule = supportedReaction(['K2O', 'SO3'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'potassium-oxide-sulfur-trioxide');
+  assert.deepEqual(rule?.reactantStoichiometry, { K2O:1, SO3:1 });
+  assert.deepEqual(rule?.productStoichiometry, { K2SO4:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['K2O', 'SO3', 'K2SO4']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational oxide-absorption model/i);
+});
