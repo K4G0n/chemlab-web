@@ -83,6 +83,15 @@ test('copper(II) oxide and sulfuric acid yield catalog-backed copper(II) sulfate
   for (const id of ['CuSO4', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
 
+test('copper(II) oxide and nitric acid yield catalog-backed copper(II) nitrate and water', () => {
+  const rule = supportedReaction(['CuO', 'HNO3'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'copper-oxide-nitric');
+  assert.deepEqual(rule?.reactantStoichiometry, { CuO:1, HNO3:2 });
+  assert.deepEqual(rule?.productStoichiometry, { CuNO32:1, H2O:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['CuO', 'HNO3', 'CuNO32', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
+
 test('calcium oxide and sulfuric acid yield catalog-backed calcium sulfate and water', () => {
   const rule = supportedReaction(['CaO', 'H2SO4'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'calcium-oxide-sulfuric');
