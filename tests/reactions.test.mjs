@@ -191,6 +191,17 @@ test('iron and hydroiodic acid yield catalog-backed iron(II) iodide and hydrogen
   assert.match(rule?.limitations || '', /educational metal-acid model/i);
 });
 
+test('magnesium and hydroiodic acid yield catalog-backed magnesium iodide and hydrogen', () => {
+  const rule = supportedReaction(['Mg', 'HI'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'magnesium-hydroiodic-displacement');
+  assert.deepEqual(rule?.reactantStoichiometry, { Mg:1, HI:2 });
+  assert.deepEqual(rule?.productStoichiometry, { MgI2:1, H2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['HI', 'MgI2', 'H2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.equal(rule?.requiresWholeStoichiometricSet, true);
+  assert.match(rule?.limitations || '', /educational metal-acid model/i);
+});
+
 test('calcium hydroxide and nitric acid yield catalog-backed calcium nitrate and water', () => {
   const rule = supportedReaction(['CaOH2', 'HNO3'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'calcium-hydroxide-nitric');
