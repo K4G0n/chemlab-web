@@ -390,7 +390,8 @@ export const REACTION_RULES = [
   rule('sulfur-trioxide-potassium-hydroxide','acid-base',{SO3:1,KOH:2},{K2SO4:1,H2O:1},'SO₃ + 2KOH → K₂SO₄ + H₂O',{observable:'potassium sulfate product marker',explanation:'A curated acidic-oxide absorption event that tracks potassium sulfate and water.',limitations:'Educational acidic-oxide absorption model; no real-world operating conditions or kinetics are simulated.'}),
   rule('sulfur-trioxide-calcium-hydroxide','acid-base',{SO3:1,CaOH2:1},{CaSO4:1,H2O:1},'SO₃ + Ca(OH)₂ → CaSO₄ + H₂O',{observable:'calcium sulfate product marker',explanation:'A curated acidic-oxide absorption event that tracks calcium sulfate and water.',limitations:'Educational acidic-oxide absorption model; no real-world operating conditions or kinetics are simulated.'}),
   rule('magnesium-oxide-hydroiodic','acid-metal-oxide',{MgO:1,HI:2},{MgI2:1,H2O:1},'MgO + 2HI → MgI₂ + H₂O',{observable:'magnesium iodide marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
-  rule('zinc-oxide-hydroiodic','acid-metal-oxide',{ZnO:1,HI:2},{ZnI2:1,H2O:1},'ZnO + 2HI → ZnI₂ + H₂O',{observable:'zinc iodide marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'})
+  rule('zinc-oxide-hydroiodic','acid-metal-oxide',{ZnO:1,HI:2},{ZnI2:1,H2O:1},'ZnO + 2HI → ZnI₂ + H₂O',{observable:'zinc iodide marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
+  rule('calcium-oxide-hydroiodic','acid-metal-oxide',{CaO:1,HI:2},{CaI2:1,H2O:1},'CaO + 2HI → CaI₂ + H₂O',{observable:'calcium iodide marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'})
 ];
 
 function normalizeFormula(formula) {
