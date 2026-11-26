@@ -174,6 +174,7 @@ export const REACTION_RULES = [
   rule('copper-oxide-acid','acid-metal-oxide',{CuO:1,HCl:2},{CuCl2:1,H2O:1},'CuO + 2HCl → CuCl₂ + H₂O'),
   rule('copper-oxide-sulfuric','acid-metal-oxide',{CuO:1,H2SO4:1},{CuSO4:1,H2O:1},'CuO + H₂SO₄ → CuSO₄ + H₂O',{observable:'copper(II) sulfate marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
   rule('copper-oxide-nitric','acid-metal-oxide',{CuO:1,HNO3:2},{CuNO32:1,H2O:1},'CuO + 2HNO₃ → Cu(NO₃)₂ + H₂O',{observable:'copper(II) nitrate marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
+  rule('copper-oxide-hydrobromic','acid-metal-oxide',{CuO:1,HBr:2},{CuBr2:1,H2O:1},'CuO + 2HBr → CuBr₂ + H₂O',{observable:'copper(II) bromide marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
   rule('methane-combustion','combustion',{CH4:1,O2:2},{CO2:1,H2O:2},'CH₄ + 2O₂ → CO₂ + 2H₂O',{condition:heated,temperatureDeltaK:35,observable:'heat and carbon dioxide marker'}),
   rule('ethanol-combustion','combustion',{C2H5OH:1,O2:3},{CO2:2,H2O:3},'C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O',{condition:heated,temperatureDeltaK:35}),
   rule('hydrogen-combustion','synthesis',{H2:2,O2:1},{H2O:2},'2H₂ + O₂ → 2H₂O',{condition:heated,temperatureDeltaK:30}),
