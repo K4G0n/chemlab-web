@@ -213,6 +213,17 @@ test('zinc and hydroiodic acid yield catalog-backed zinc iodide and hydrogen', (
   assert.match(rule?.limitations || '', /educational metal-acid model/i);
 });
 
+test('aluminium and hydroiodic acid yield catalog-backed aluminium iodide and hydrogen', () => {
+  const rule = supportedReaction(['Al', 'HI'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'aluminium-hydroiodic-displacement');
+  assert.deepEqual(rule?.reactantStoichiometry, { Al:2, HI:6 });
+  assert.deepEqual(rule?.productStoichiometry, { AlI3:2, H2:3 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['HI', 'AlI3', 'H2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.equal(rule?.requiresWholeStoichiometricSet, true);
+  assert.match(rule?.limitations || '', /educational metal-acid model/i);
+});
+
 test('calcium hydroxide and nitric acid yield catalog-backed calcium nitrate and water', () => {
   const rule = supportedReaction(['CaOH2', 'HNO3'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'calcium-hydroxide-nitric');
