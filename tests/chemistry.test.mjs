@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { screenToWorld, supportedReaction, supportedContainedReaction, REACTION_RULES, materialProfile } from '../chemistry.js';
+import { COMPOUNDS, screenToWorld, supportedReaction, supportedContainedReaction, REACTION_RULES, materialProfile } from '../chemistry.js';
 
 test('screenToWorld maps cursor position through pan and zoom', () => {
   assert.deepEqual(screenToWorld({ x: 500, y: 300 }, { x: 100, y: 50, zoom: 2 }), { x: 200, y: 125 });
@@ -23,6 +23,14 @@ test('aluminium oxide plus sulfuric acid is a catalog-backed balanced rule', () 
   assert.equal(result?.id, 'aluminium-oxide-sulfuric');
   assert.equal(result?.equation, 'Al₂O₃ + 3H₂SO₄ → Al₂(SO₄)₃ + 3H₂O');
   assert.deepEqual(result?.productStoichiometry, { Al2SO43: 1, H2O: 3 });
+});
+
+test('iron(III) oxide plus nitric acid is a catalog-backed balanced rule', () => {
+  const result = supportedReaction(['Fe2O3', 'HNO3'], { temperatureK: 293, pressureAtm: 1 });
+  assert.equal(result?.id, 'iron-oxide-nitric');
+  assert.equal(result?.equation, 'Fe₂O₃ + 6HNO₃ → 2Fe(NO₃)₃ + 3H₂O');
+  assert.deepEqual(result?.productStoichiometry, { FeNO33: 2, H2O: 3 });
+  assert.equal(COMPOUNDS.some((compound) => compound.id === 'FeNO33'), true, 'FeNO33 must be spawnable');
 });
 
 test('unsupported contact never fabricates a reaction', () => {
