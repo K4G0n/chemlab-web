@@ -18,6 +18,13 @@ test('a complete composition resolves its supported reaction without an external
   assert.equal(supportedContainedReaction({ Na: 2, H2O: 1 }, { temperatureK: 293, pressureAtm: 1 }), null);
 });
 
+test('aluminium oxide plus sulfuric acid is a catalog-backed balanced rule', () => {
+  const result = supportedReaction(['Al2O3', 'H2SO4'], { temperatureK: 293, pressureAtm: 1 });
+  assert.equal(result?.id, 'aluminium-oxide-sulfuric');
+  assert.equal(result?.equation, 'Al₂O₃ + 3H₂SO₄ → Al₂(SO₄)₃ + 3H₂O');
+  assert.deepEqual(result?.productStoichiometry, { Al2SO43: 1, H2O: 3 });
+});
+
 test('unsupported contact never fabricates a reaction', () => {
   assert.equal(supportedReaction(['Au', 'H2O'], { temperatureK: 293, pressureAtm: 1 }), null);
 });
