@@ -641,3 +641,13 @@ test('aluminium oxide and hydrobromic acid yield catalog-backed aluminium bromid
   for (const id of ['Al2O3', 'HBr', 'AlBr3', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
   assert.match(rule?.limitations || '', /educational acid-metal-oxide model/i);
 });
+
+test('sodium oxide and sulfur trioxide yield catalog-backed sodium sulfate', () => {
+  const rule = supportedReaction(['Na2O', 'SO3'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'sodium-oxide-sulfur-trioxide');
+  assert.deepEqual(rule?.reactantStoichiometry, { Na2O:1, SO3:1 });
+  assert.deepEqual(rule?.productStoichiometry, { Na2SO4:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['Na2O', 'SO3', 'Na2SO4']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational oxide-absorption model/i);
+});
