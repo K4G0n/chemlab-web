@@ -92,6 +92,15 @@ test('calcium oxide and sulfuric acid yield catalog-backed calcium sulfate and w
   for (const id of ['CaO', 'H2SO4', 'CaSO4', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
 
+test('aluminium oxide and hydrochloric acid yield catalog-backed aluminium chloride and water', () => {
+  const rule = supportedReaction(['Al2O3', 'HCl'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'aluminium-oxide-hydrochloric');
+  assert.deepEqual(rule?.reactantStoichiometry, { Al2O3:1, HCl:6 });
+  assert.deepEqual(rule?.productStoichiometry, { AlCl3:2, H2O:3 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['Al2O3', 'HCl', 'AlCl3', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
+
 test('unary decomposition rules are independently indexed and condition-gated', () => {
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:293, pressureAtm:1 }), null);
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:850, pressureAtm:1 })?.id, 'limestone-decomposition');
