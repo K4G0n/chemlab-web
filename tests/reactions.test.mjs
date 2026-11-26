@@ -631,3 +631,13 @@ test('acidic oxides react with curated alkali and alkaline-earth bases into bala
   const sulfate = REACTION_RULES.find((rule) => rule.id === 'sulfur-trioxide-calcium-hydroxide');
   assert.match(sulfate?.limitations || '', /educational acidic-oxide absorption model/i);
 });
+
+test('aluminium oxide and hydrobromic acid yield catalog-backed aluminium bromide and water', () => {
+  const rule = supportedReaction(['Al2O3', 'HBr'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'aluminium-oxide-hydrobromic');
+  assert.deepEqual(rule?.reactantStoichiometry, { Al2O3:1, HBr:6 });
+  assert.deepEqual(rule?.productStoichiometry, { AlBr3:2, H2O:3 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['Al2O3', 'HBr', 'AlBr3', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational acid-metal-oxide model/i);
+});
