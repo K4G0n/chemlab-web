@@ -235,6 +235,17 @@ test('iron and hydrobromic acid yield catalog-backed iron(II) bromide and hydrog
   assert.match(rule?.limitations || '', /educational metal-acid model/i);
 });
 
+test('calcium and hydrobromic acid yield catalog-backed calcium bromide and hydrogen', () => {
+  const rule = supportedReaction(['Ca', 'HBr'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'calcium-hydrobromic-displacement');
+  assert.deepEqual(rule?.reactantStoichiometry, { Ca:1, HBr:2 });
+  assert.deepEqual(rule?.productStoichiometry, { CaBr2:1, H2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['HBr', 'CaBr2', 'H2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.equal(rule?.requiresWholeStoichiometricSet, true);
+  assert.match(rule?.limitations || '', /educational metal-acid model/i);
+});
+
 test('calcium hydroxide and nitric acid yield catalog-backed calcium nitrate and water', () => {
   const rule = supportedReaction(['CaOH2', 'HNO3'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'calcium-hydroxide-nitric');
