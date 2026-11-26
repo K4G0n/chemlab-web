@@ -205,6 +205,7 @@ export const REACTION_RULES = [
   rule('copper-oxide-carbon-reduction','reduction',{CuO:2,C:1},{Cu:2,CO2:1},'2CuO + C → 2Cu + CO₂',{condition:stronglyHeated,temperatureDeltaK:-8}),
   rule('zinc-oxide-acid','acid-metal-oxide',{ZnO:1,HCl:2},{ZnCl2:1,H2O:1},'ZnO + 2HCl → ZnCl₂ + H₂O'),
   rule('magnesium-oxide-acid','acid-metal-oxide',{MgO:1,HCl:2},{MgCl2:1,H2O:1},'MgO + 2HCl → MgCl₂ + H₂O'),
+  rule('magnesium-oxide-nitric','acid-metal-oxide',{MgO:1,HNO3:2},{MgNO32:1,H2O:1},'MgO + 2HNO₃ → Mg(NO₃)₂ + H₂O',{observable:'magnesium nitrate marker',limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
   rule('aluminium-oxide-hydrochloric','acid-metal-oxide',{Al2O3:1,HCl:6},{AlCl3:2,H2O:3},'Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O',{limitations:'Educational acid-metal-oxide model; solution concentration, hydration states, and reaction rates are not simulated.'}),
   rule('sodium-bicarbonate-decomposition','decomposition',{NaHCO3:2},{Na2CO3:1,H2O:1,CO2:1},'2NaHCO₃ → Na₂CO₃ + H₂O + CO₂↑',{condition:heated,temperatureDeltaK:-6}),
   rule('ethyl-ethanoate-hydrolysis','hydrolysis',{CH3COOC2H5:1,H2O:1},{CH3COOH:1,C2H5OH:1},'CH₃COOC₂H₅ + H₂O → CH₃COOH + C₂H₅OH',{condition:ambient}),

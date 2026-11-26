@@ -101,6 +101,15 @@ test('calcium oxide and hydrochloric acid yield catalog-backed calcium chloride 
   for (const id of ['CaO', 'HCl', 'CaCl2', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
 
+test('magnesium oxide and nitric acid yield catalog-backed magnesium nitrate and water', () => {
+  const rule = supportedReaction(['MgO', 'HNO3'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'magnesium-oxide-nitric');
+  assert.deepEqual(rule?.reactantStoichiometry, { MgO:1, HNO3:2 });
+  assert.deepEqual(rule?.productStoichiometry, { MgNO32:1, H2O:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgO', 'HNO3', 'MgNO32', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
+
 test('aluminium oxide and hydrochloric acid yield catalog-backed aluminium chloride and water', () => {
   const rule = supportedReaction(['Al2O3', 'HCl'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'aluminium-oxide-hydrochloric');
