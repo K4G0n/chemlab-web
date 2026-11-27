@@ -90,6 +90,19 @@ test('magnesium oxide hydration provides catalog-backed magnesium hydroxide for 
   assert.match(hydration?.limitations || '', /educational oxide-hydration model/i);
 });
 
+test('calcium hydroxide thermally decomposes only under simulated strong heating into catalog-backed oxide and water', () => {
+  assert.equal(supportedUnaryReaction('CaOH2', { temperatureK:293, pressureAtm:1 }), null);
+
+  const rule = supportedUnaryReaction('CaOH2', { temperatureK:1200, pressureAtm:1 });
+  assert.equal(rule?.id, 'calcium-hydroxide-decomposition');
+  assert.deepEqual(rule?.reactantStoichiometry, { CaOH2:1 });
+  assert.deepEqual(rule?.productStoichiometry, { CaO:1, H2O:1 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['CaOH2', 'CaO', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
+});
+
 test('iron(II) oxide neutralizes hydrochloric acid into catalog-backed iron(II) chloride and water', () => {
   const rule = supportedReaction(['FeO', 'HCl'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'iron-ii-oxide-hydrochloric');
