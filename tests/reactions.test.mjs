@@ -586,14 +586,16 @@ test('curated sulfite and sulfide acid reactions expose gas products and a precu
   const expectedRules = [
     [['Na2SO3', 'HCl'], 'hydrochloric-sodium-sulfite'],
     [['Na2SO3', 'HBr'], 'hydrobromic-sodium-sulfite'],
+    [['Na2SO3', 'H2SO4'], 'sulfuric-sodium-sulfite'],
     [['Na2S', 'HCl'], 'hydrochloric-sodium-sulfide'],
     [['Na2S', 'HBr'], 'hydrobromic-sodium-sulfide'],
+    [['Na2S', 'H2SO4'], 'sulfuric-sodium-sulfide'],
     [['Na', 'S'], 'sodium-sulfide-synthesis']
   ];
   for (const [reactants, id] of expectedRules) assert.equal(supportedReaction(reactants, conditions)?.id, id);
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
-  for (const id of ['Na2S', 'H2S']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
-  const sulfide = REACTION_RULES.find((rule) => rule.id === 'hydrochloric-sodium-sulfide');
+  for (const id of ['Na2S', 'H2S', 'Na2SO3', 'SO2', 'Na2SO4']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const sulfide = REACTION_RULES.find((rule) => rule.id === 'sulfuric-sodium-sulfide');
   assert.match(sulfide?.limitations || '', /educational gas-formation model/i);
 });
 
