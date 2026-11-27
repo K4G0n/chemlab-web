@@ -190,6 +190,17 @@ test('barium oxide neutralizes common mineral acids into catalog-backed salts an
   assert.match(sulfuric?.limitations || '', /educational acid-metal-oxide model/i);
 });
 
+test('barium oxide captures carbon dioxide into catalog-backed barium carbonate', () => {
+  const rule = supportedReaction(['BaO', 'CO2'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'barium-oxide-carbon-dioxide');
+  assert.deepEqual(rule?.reactantStoichiometry, { BaO:1, CO2:1 });
+  assert.deepEqual(rule?.productStoichiometry, { BaCO3:1 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['BaO', 'CO2', 'BaCO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational oxide-absorption model/i);
+});
+
 test('barium carbonate reacts with common mineral acids into catalog-backed salts, water, and carbon dioxide', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedReactions = [
