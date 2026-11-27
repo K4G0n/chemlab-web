@@ -921,3 +921,14 @@ test('iron(II) carbonate decomposes into catalog-backed iron(II) oxide and carbo
   for (const id of ['FeCO3', 'FeO', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
   assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
 });
+
+test('sulfur dioxide oxidizes into catalog-backed sulfur trioxide only when heated', () => {
+  assert.equal(supportedReaction(['SO2', 'O2'], { temperatureK:293, pressureAtm:1 }), null);
+  const rule = supportedReaction(['SO2', 'O2'], { temperatureK:480, pressureAtm:1 });
+  assert.equal(rule?.id, 'sulfur-dioxide-oxidation');
+  assert.deepEqual(rule?.reactantStoichiometry, { SO2:2, O2:1 });
+  assert.deepEqual(rule?.productStoichiometry, { SO3:2 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['SO2', 'O2', 'SO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational oxidation model/i);
+});
