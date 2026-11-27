@@ -147,6 +147,17 @@ test('zinc hydroxide neutralizes hydrochloric acid into catalog-backed zinc chlo
   assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
 });
 
+test('zinc hydroxide neutralizes sulfuric acid into catalog-backed zinc sulfate and water', () => {
+  const rule = supportedReaction(['ZnOH2', 'H2SO4'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'zinc-hydroxide-sulfuric');
+  assert.deepEqual(rule?.reactantStoichiometry, { ZnOH2:1, H2SO4:1 });
+  assert.deepEqual(rule?.productStoichiometry, { ZnSO4:1, H2O:2 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['ZnOH2', 'H2SO4', 'ZnSO4', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
+});
+
 test('calcium hydroxide thermally decomposes only under simulated strong heating into catalog-backed oxide and water', () => {
   assert.equal(supportedUnaryReaction('CaOH2', { temperatureK:293, pressureAtm:1 }), null);
 
