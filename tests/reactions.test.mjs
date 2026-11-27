@@ -74,6 +74,17 @@ test('curated metal plus sulfuric acid reactions yield catalog-backed sulfates a
   assert.match(aluminium?.limitations || '', /educational metal-acid model/i);
 });
 
+test('calcium displaces hydrogen from hydrochloric acid into catalog-backed calcium chloride', () => {
+  const rule = supportedReaction(['Ca', 'HCl'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'calcium-hydrochloric-displacement');
+  assert.equal(rule?.requiresWholeStoichiometricSet, true);
+  assert.deepEqual(rule?.reactantStoichiometry, { Ca:1, HCl:2 });
+  assert.deepEqual(rule?.productStoichiometry, { CaCl2:1, H2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['HCl', 'CaCl2', 'H2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational metal-acid model/i);
+});
+
 test('copper(II) oxide and sulfuric acid yield catalog-backed copper(II) sulfate and water', () => {
   const rule = supportedReaction(['CuO', 'H2SO4'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'copper-oxide-sulfuric');
