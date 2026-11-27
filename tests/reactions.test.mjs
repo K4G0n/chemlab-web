@@ -718,3 +718,14 @@ test('barium carbonate decomposes into catalog-backed barium oxide and carbon di
   for (const id of ['BaCO3', 'BaO', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
   assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
 });
+
+test('iron(II) carbonate decomposes into catalog-backed iron(II) oxide and carbon dioxide only when strongly heated', () => {
+  assert.equal(supportedUnaryReaction('FeCO3', { temperatureK:500, pressureAtm:1 }), null);
+  const rule = supportedUnaryReaction('FeCO3', { temperatureK:750, pressureAtm:1 });
+  assert.equal(rule?.id, 'iron-ii-carbonate-decomposition');
+  assert.deepEqual(rule?.reactantStoichiometry, { FeCO3:1 });
+  assert.deepEqual(rule?.productStoichiometry, { FeO:1, CO2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['FeCO3', 'FeO', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
+});
