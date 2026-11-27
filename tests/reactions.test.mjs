@@ -696,3 +696,14 @@ test('calcium sulfite decomposes into catalog-backed calcium oxide and sulfur di
   for (const id of ['CaSO3', 'CaO', 'SO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
   assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
 });
+
+test('magnesium sulfite decomposes into catalog-backed magnesium oxide and sulfur dioxide only when strongly heated', () => {
+  assert.equal(supportedUnaryReaction('MgSO3', { temperatureK:500, pressureAtm:1 }), null);
+  const rule = supportedUnaryReaction('MgSO3', { temperatureK:750, pressureAtm:1 });
+  assert.equal(rule?.id, 'magnesium-sulfite-decomposition');
+  assert.deepEqual(rule?.reactantStoichiometry, { MgSO3:1 });
+  assert.deepEqual(rule?.productStoichiometry, { MgO:1, SO2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgSO3', 'MgO', 'SO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
+});
