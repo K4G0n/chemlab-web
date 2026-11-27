@@ -149,7 +149,8 @@ test('barium oxide neutralizes common mineral acids into catalog-backed salts an
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedReactions = [
     [['BaO', 'HCl'], 'barium-oxide-hydrochloric', { BaO:1, HCl:2 }, { BaCl2:1, H2O:1 }],
-    [['BaO', 'H2SO4'], 'barium-oxide-sulfuric', { BaO:1, H2SO4:1 }, { BaSO4:1, H2O:1 }]
+    [['BaO', 'H2SO4'], 'barium-oxide-sulfuric', { BaO:1, H2SO4:1 }, { BaSO4:1, H2O:1 }],
+    [['BaO', 'HNO3'], 'barium-oxide-nitric', { BaO:1, HNO3:2 }, { BaNO32:1, H2O:1 }]
   ];
   for (const [reactants, id, reactantStoichiometry, productStoichiometry] of expectedReactions) {
     const rule = supportedReaction(reactants, conditions);
@@ -158,7 +159,7 @@ test('barium oxide neutralizes common mineral acids into catalog-backed salts an
     assert.deepEqual(rule?.productStoichiometry, productStoichiometry);
   }
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
-  for (const id of ['BaO', 'HCl', 'H2SO4', 'BaCl2', 'BaSO4', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  for (const id of ['BaO', 'HCl', 'H2SO4', 'HNO3', 'BaCl2', 'BaSO4', 'BaNO32', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
   const sulfuric = REACTION_RULES.find((rule) => rule.id === 'barium-oxide-sulfuric');
   assert.match(sulfuric?.limitations || '', /educational acid-metal-oxide model/i);
 });
