@@ -151,6 +151,16 @@ test('magnesium carbonate reacts with hydrobromic and nitric acids into catalog-
   assert.match(nitric?.limitations || '', /educational carbonate-acid model/i);
 });
 
+test('magnesium carbonate reacts with hydroiodic acid into catalog-backed magnesium iodide, water, and carbon dioxide', () => {
+  const rule = supportedReaction(['MgCO3', 'HI'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'magnesium-carbonate-hydroiodic');
+  assert.deepEqual(rule?.reactantStoichiometry, { MgCO3:1, HI:2 });
+  assert.deepEqual(rule?.productStoichiometry, { MgI2:1, H2O:1, CO2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgCO3', 'HI', 'MgI2', 'H2O', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational carbonate-acid model/i);
+});
+
 test('curated metal plus sulfuric acid reactions yield catalog-backed sulfates and hydrogen from complete sets', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedRules = [
