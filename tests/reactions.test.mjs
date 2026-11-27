@@ -97,6 +97,24 @@ test('barium oxide neutralizes common mineral acids into catalog-backed salts an
   assert.match(sulfuric?.limitations || '', /educational acid-metal-oxide model/i);
 });
 
+test('barium carbonate reacts with common mineral acids into catalog-backed salts, water, and carbon dioxide', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedReactions = [
+    [['BaCO3', 'HCl'], 'barium-carbonate-hydrochloric', { BaCO3:1, HCl:2 }, { BaCl2:1, H2O:1, CO2:1 }],
+    [['BaCO3', 'H2SO4'], 'barium-carbonate-sulfuric', { BaCO3:1, H2SO4:1 }, { BaSO4:1, H2O:1, CO2:1 }]
+  ];
+  for (const [reactants, id, reactantStoichiometry, productStoichiometry] of expectedReactions) {
+    const rule = supportedReaction(reactants, conditions);
+    assert.equal(rule?.id, id);
+    assert.deepEqual(rule?.reactantStoichiometry, reactantStoichiometry);
+    assert.deepEqual(rule?.productStoichiometry, productStoichiometry);
+  }
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['BaCO3', 'HCl', 'H2SO4', 'BaCl2', 'BaSO4', 'H2O', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const sulfuric = REACTION_RULES.find((rule) => rule.id === 'barium-carbonate-sulfuric');
+  assert.match(sulfuric?.limitations || '', /educational carbonate-acid model/i);
+});
+
 test('curated metal plus sulfuric acid reactions yield catalog-backed sulfates and hydrogen from complete sets', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedRules = [
