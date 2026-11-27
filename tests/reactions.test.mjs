@@ -201,15 +201,22 @@ test('magnesium carbonate reacts with common mineral acids into catalog-backed s
   assert.match(sulfuric?.limitations || '', /educational carbonate-acid model/i);
 });
 
-test('iron(II) carbonate reacts with hydrochloric acid into catalog-backed iron(II) chloride, water, and carbon dioxide', () => {
-  const rule = supportedReaction(['FeCO3', 'HCl'], { temperatureK:293, pressureAtm:1 });
-  assert.equal(rule?.id, 'iron-ii-carbonate-hydrochloric');
-  assert.deepEqual(rule?.reactantStoichiometry, { FeCO3:1, HCl:2 });
-  assert.deepEqual(rule?.productStoichiometry, { FeCl2:1, H2O:1, CO2:1 });
+test('iron(II) carbonate reacts with hydrochloric and sulfuric acids into catalog-backed salts, water, and carbon dioxide', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedReactions = [
+    [['FeCO3', 'HCl'], 'iron-ii-carbonate-hydrochloric', { FeCO3:1, HCl:2 }, { FeCl2:1, H2O:1, CO2:1 }],
+    [['FeCO3', 'H2SO4'], 'iron-ii-carbonate-sulfuric', { FeCO3:1, H2SO4:1 }, { FeSO4:1, H2O:1, CO2:1 }]
+  ];
+  for (const [reactants, id, reactantStoichiometry, productStoichiometry] of expectedReactions) {
+    const rule = supportedReaction(reactants, conditions);
+    assert.equal(rule?.id, id);
+    assert.deepEqual(rule?.reactantStoichiometry, reactantStoichiometry);
+    assert.deepEqual(rule?.productStoichiometry, productStoichiometry);
+    assert.match(rule?.limitations || '', /educational carbonate-acid model/i);
+  }
 
   const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
-  for (const id of ['FeCO3', 'HCl', 'FeCl2', 'H2O', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
-  assert.match(rule?.limitations || '', /educational carbonate-acid model/i);
+  for (const id of ['FeCO3', 'HCl', 'H2SO4', 'FeCl2', 'FeSO4', 'H2O', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
 
 test('magnesium carbonate reacts with hydrobromic and nitric acids into catalog-backed salts, water, and carbon dioxide', () => {
