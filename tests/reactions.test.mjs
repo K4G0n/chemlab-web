@@ -985,6 +985,17 @@ test('iron(II) hydroxide decomposes into catalog-backed iron(II) oxide and water
   assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
 });
 
+test('aluminium hydroxide decomposes into catalog-backed aluminium oxide and water only when strongly heated', () => {
+  assert.equal(supportedUnaryReaction('AlOH3', { temperatureK:500, pressureAtm:1 }), null);
+  const rule = supportedUnaryReaction('AlOH3', { temperatureK:750, pressureAtm:1 });
+  assert.equal(rule?.id, 'aluminium-hydroxide-decomposition');
+  assert.deepEqual(rule?.reactantStoichiometry, { AlOH3:2 });
+  assert.deepEqual(rule?.productStoichiometry, { Al2O3:1, H2O:3 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['AlOH3', 'Al2O3', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
+});
+
 test('lead(II) carbonate decomposes into catalog-backed lead(II) oxide and carbon dioxide only when strongly heated', () => {
   assert.equal(supportedUnaryReaction('PbCO3', { temperatureK:500, pressureAtm:1 }), null);
   const rule = supportedUnaryReaction('PbCO3', { temperatureK:750, pressureAtm:1 });
