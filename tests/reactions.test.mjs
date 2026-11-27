@@ -112,6 +112,17 @@ test('iron(II) oxide neutralizes sulfuric acid into catalog-backed iron(II) sulf
   assert.match(rule?.limitations || '', /educational acid-metal-oxide model/i);
 });
 
+test('iron(II) oxide neutralizes nitric acid into catalog-backed iron(II) nitrate and water', () => {
+  const rule = supportedReaction(['FeO', 'HNO3'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'iron-ii-oxide-nitric');
+  assert.deepEqual(rule?.reactantStoichiometry, { FeO:1, HNO3:2 });
+  assert.deepEqual(rule?.productStoichiometry, { FeNO32:1, H2O:1 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['FeO', 'HNO3', 'FeNO32', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational acid-metal-oxide model/i);
+});
+
 test('barium oxide neutralizes common mineral acids into catalog-backed salts and water', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedReactions = [
