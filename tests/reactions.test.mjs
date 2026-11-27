@@ -79,6 +79,19 @@ test('barium oxide hydration provides catalog-backed barium hydroxide for acid-b
   assert.match(sulfate?.limitations || '', /educational acid-base neutralization model/i);
 });
 
+test('barium hydroxide thermally decomposes only under simulated strong heating into catalog-backed oxide and water', () => {
+  assert.equal(supportedUnaryReaction('BaOH2', { temperatureK:293, pressureAtm:1 }), null);
+
+  const rule = supportedUnaryReaction('BaOH2', { temperatureK:1200, pressureAtm:1 });
+  assert.equal(rule?.id, 'barium-hydroxide-decomposition');
+  assert.deepEqual(rule?.reactantStoichiometry, { BaOH2:1 });
+  assert.deepEqual(rule?.productStoichiometry, { BaO:1, H2O:1 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['BaOH2', 'BaO', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
+});
+
 test('magnesium oxide hydration provides catalog-backed magnesium hydroxide for follow-on reactions', () => {
   const hydration = supportedReaction(['MgO', 'H2O'], { temperatureK:293, pressureAtm:1 });
   assert.equal(hydration?.id, 'magnesium-oxide-hydration');
