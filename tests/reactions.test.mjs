@@ -125,6 +125,17 @@ test('magnesium oxide hydration provides catalog-backed magnesium hydroxide for 
   assert.match(hydration?.limitations || '', /educational oxide-hydration model/i);
 });
 
+test('magnesium hydroxide neutralizes hydrochloric acid into catalog-backed magnesium chloride and water', () => {
+  const rule = supportedReaction(['MgOH2', 'HCl'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'magnesium-hydroxide-hydrochloric');
+  assert.deepEqual(rule?.reactantStoichiometry, { MgOH2:1, HCl:2 });
+  assert.deepEqual(rule?.productStoichiometry, { MgCl2:1, H2O:2 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgOH2', 'HCl', 'MgCl2', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
+});
+
 test('calcium hydroxide thermally decomposes only under simulated strong heating into catalog-backed oxide and water', () => {
   assert.equal(supportedUnaryReaction('CaOH2', { temperatureK:293, pressureAtm:1 }), null);
 
