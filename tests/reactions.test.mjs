@@ -90,6 +90,17 @@ test('barium hydroxide neutralizes hydroiodic acid into catalog-backed barium io
   assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
 });
 
+test('barium hydroxide neutralizes nitric acid into catalog-backed barium nitrate and water', () => {
+  const rule = supportedReaction(['BaOH2', 'HNO3'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'barium-hydroxide-nitric');
+  assert.deepEqual(rule?.reactantStoichiometry, { BaOH2:1, HNO3:2 });
+  assert.deepEqual(rule?.productStoichiometry, { BaNO32:1, H2O:2 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['BaOH2', 'HNO3', 'BaNO32', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
+});
+
 test('barium hydroxide thermally decomposes only under simulated strong heating into catalog-backed oxide and water', () => {
   assert.equal(supportedUnaryReaction('BaOH2', { temperatureK:293, pressureAtm:1 }), null);
 
