@@ -193,6 +193,7 @@ export const REACTION_RULES = [
   rule('magnesium-oxidation','oxidation',{Mg:2,O2:1},{MgO:2},'2Mg + O₂ → 2MgO',{condition:heated,temperatureDeltaK:25}),
   rule('iron-oxidation','corrosion',{Fe:4,O2:3},{Fe2O3:2},'4Fe + 3O₂ → 2Fe₂O₃',{condition:heated,temperatureDeltaK:6}),
   rule('sulfur-oxidation','oxidation',{S:1,O2:1},{SO2:1},'S + O₂ → SO₂',{condition:heated,temperatureDeltaK:16}),
+  rule('hydrogen-sulfide-oxidation','oxidation',{H2S:2,O2:3},{SO2:2,H2O:2},'2H₂S + 3O₂ → 2SO₂ + 2H₂O',{condition:heated,temperatureDeltaK:18,observable:'sulfur dioxide and water markers',explanation:'A curated educational oxidation representation that tracks sulfur dioxide and water from hydrogen sulfide.',limitations:'Educational oxidation model; no real-world operating conditions, rates, or gas-handling guidance is simulated.'}),
   rule('sulfur-dioxide-hydration','hydrolysis',{SO2:1,H2O:1},{H2SO3:1},'SO₂ + H₂O → H₂SO₃'),
   rule('limestone-decomposition','decomposition',{CaCO3:1},{CaO:1,CO2:1},'CaCO₃ → CaO + CO₂↑',{condition:stronglyHeated,temperatureDeltaK:-15}),
   rule('peroxide-decomposition','decomposition',{H2O2:2},{H2O:2,O2:1},'2H₂O₂ → 2H₂O + O₂↑',{condition:heated,observable:'oxygen gas marker'}),

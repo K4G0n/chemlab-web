@@ -85,6 +85,17 @@ test('calcium displaces hydrogen from hydrochloric acid into catalog-backed calc
   assert.match(rule?.limitations || '', /educational metal-acid model/i);
 });
 
+test('hydrogen sulfide oxidizes to catalog-backed sulfur dioxide and water only when heated', () => {
+  assert.equal(supportedReaction(['H2S', 'O2'], { temperatureK:293, pressureAtm:1 }), null);
+  const rule = supportedReaction(['H2S', 'O2'], { temperatureK:500, pressureAtm:1 });
+  assert.equal(rule?.id, 'hydrogen-sulfide-oxidation');
+  assert.deepEqual(rule?.reactantStoichiometry, { H2S:2, O2:3 });
+  assert.deepEqual(rule?.productStoichiometry, { SO2:2, H2O:2 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['H2S', 'O2', 'SO2', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational oxidation model/i);
+});
+
 test('copper(II) oxide and sulfuric acid yield catalog-backed copper(II) sulfate and water', () => {
   const rule = supportedReaction(['CuO', 'H2SO4'], { temperatureK:293, pressureAtm:1 });
   assert.equal(rule?.id, 'copper-oxide-sulfuric');
