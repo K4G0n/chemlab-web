@@ -685,3 +685,14 @@ test('potassium oxide and sulfur trioxide yield catalog-backed potassium sulfate
   for (const id of ['K2O', 'SO3', 'K2SO4']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
   assert.match(rule?.limitations || '', /educational oxide-absorption model/i);
 });
+
+test('calcium sulfite decomposes into catalog-backed calcium oxide and sulfur dioxide only when strongly heated', () => {
+  assert.equal(supportedUnaryReaction('CaSO3', { temperatureK:500, pressureAtm:1 }), null);
+  const rule = supportedUnaryReaction('CaSO3', { temperatureK:750, pressureAtm:1 });
+  assert.equal(rule?.id, 'calcium-sulfite-decomposition');
+  assert.deepEqual(rule?.reactantStoichiometry, { CaSO3:1 });
+  assert.deepEqual(rule?.productStoichiometry, { CaO:1, SO2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['CaSO3', 'CaO', 'SO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
+});
