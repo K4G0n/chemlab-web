@@ -79,6 +79,17 @@ test('barium oxide hydration provides catalog-backed barium hydroxide for acid-b
   assert.match(sulfate?.limitations || '', /educational acid-base neutralization model/i);
 });
 
+test('magnesium oxide hydration provides catalog-backed magnesium hydroxide for follow-on reactions', () => {
+  const hydration = supportedReaction(['MgO', 'H2O'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(hydration?.id, 'magnesium-oxide-hydration');
+  assert.deepEqual(hydration?.reactantStoichiometry, { MgO:1, H2O:1 });
+  assert.deepEqual(hydration?.productStoichiometry, { MgOH2:1 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgO', 'H2O', 'MgOH2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(hydration?.limitations || '', /educational oxide-hydration model/i);
+});
+
 test('barium oxide neutralizes common mineral acids into catalog-backed salts and water', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedReactions = [
