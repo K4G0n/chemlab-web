@@ -812,6 +812,17 @@ test('curated divalent metal nitrate decompositions require simulated high tempe
   assert.match(copperNitrate?.limitations || '', /educational thermal decomposition model/i);
 });
 
+test('lead(II) nitrate decomposes into catalog-backed lead(II) oxide only when strongly heated', () => {
+  assert.equal(supportedUnaryReaction('PbNO32', { temperatureK:500, pressureAtm:1 }), null);
+  const rule = supportedUnaryReaction('PbNO32', { temperatureK:750, pressureAtm:1 });
+  assert.equal(rule?.id, 'lead-nitrate-decomposition');
+  assert.deepEqual(rule?.reactantStoichiometry, { PbNO32:2 });
+  assert.deepEqual(rule?.productStoichiometry, { PbO:2, NO2:4, O2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['PbNO32', 'PbO', 'NO2', 'O2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
+});
+
 test('curated sulfite and sulfide acid reactions expose gas products and a precursor pathway', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedRules = [
