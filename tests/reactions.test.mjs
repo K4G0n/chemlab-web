@@ -133,6 +133,24 @@ test('magnesium carbonate reacts with common mineral acids into catalog-backed s
   assert.match(sulfuric?.limitations || '', /educational carbonate-acid model/i);
 });
 
+test('magnesium carbonate reacts with hydrobromic and nitric acids into catalog-backed salts, water, and carbon dioxide', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedReactions = [
+    [['MgCO3', 'HBr'], 'magnesium-carbonate-hydrobromic', { MgCO3:1, HBr:2 }, { MgBr2:1, H2O:1, CO2:1 }],
+    [['MgCO3', 'HNO3'], 'magnesium-carbonate-nitric', { MgCO3:1, HNO3:2 }, { MgNO32:1, H2O:1, CO2:1 }]
+  ];
+  for (const [reactants, id, reactantStoichiometry, productStoichiometry] of expectedReactions) {
+    const rule = supportedReaction(reactants, conditions);
+    assert.equal(rule?.id, id);
+    assert.deepEqual(rule?.reactantStoichiometry, reactantStoichiometry);
+    assert.deepEqual(rule?.productStoichiometry, productStoichiometry);
+  }
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['MgCO3', 'HBr', 'HNO3', 'MgBr2', 'MgNO32', 'H2O', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const nitric = REACTION_RULES.find((rule) => rule.id === 'magnesium-carbonate-nitric');
+  assert.match(nitric?.limitations || '', /educational carbonate-acid model/i);
+});
+
 test('curated metal plus sulfuric acid reactions yield catalog-backed sulfates and hydrogen from complete sets', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedRules = [
