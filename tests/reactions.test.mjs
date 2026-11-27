@@ -180,6 +180,17 @@ test('iron(II) hydroxide neutralizes sulfuric acid into catalog-backed iron(II) 
   assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
 });
 
+test('iron(II) hydroxide neutralizes nitric acid into catalog-backed iron(II) nitrate and water', () => {
+  const rule = supportedReaction(['FeOH2', 'HNO3'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'iron-ii-hydroxide-nitric');
+  assert.deepEqual(rule?.reactantStoichiometry, { FeOH2:1, HNO3:2 });
+  assert.deepEqual(rule?.productStoichiometry, { FeNO32:1, H2O:2 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['FeOH2', 'HNO3', 'FeNO32', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
+});
+
 test('calcium hydroxide thermally decomposes only under simulated strong heating into catalog-backed oxide and water', () => {
   assert.equal(supportedUnaryReaction('CaOH2', { temperatureK:293, pressureAtm:1 }), null);
 
