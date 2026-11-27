@@ -568,6 +568,23 @@ test('expanded precipitation families provide balanced cross-salt outcomes with 
   for (const id of ['BaCO3', 'CuCO3', 'PbSO4', 'PbBr2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
 });
 
+test('iron(III) nitrate precipitates catalog-backed iron(III) hydroxide with sodium or potassium hydroxide', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const expectedReactions = [
+    [['FeNO33', 'NaOH'], 'iron-iii-hydroxide-nitrate-sodium', { FeNO33:1, NaOH:3 }, { FeOH3:1, NaNO3:3 }],
+    [['FeNO33', 'KOH'], 'iron-iii-hydroxide-nitrate-potassium', { FeNO33:1, KOH:3 }, { FeOH3:1, KNO3:3 }]
+  ];
+  for (const [reactants, id, reactantsExpected, productsExpected] of expectedReactions) {
+    const rule = supportedReaction(reactants, conditions);
+    assert.equal(rule?.id, id);
+    assert.deepEqual(rule?.reactantStoichiometry, reactantsExpected);
+    assert.deepEqual(rule?.productStoichiometry, productsExpected);
+    assert.match(rule?.limitations || '', /educational iron\(III\) hydroxide precipitation approximation/i);
+  }
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['FeNO33', 'NaOH', 'KOH', 'FeOH3', 'NaNO3', 'KNO3']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+});
+
 test('carbonate and halide precipitation variants preserve spectator salts and expose new products', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedRules = [
