@@ -55,6 +55,30 @@ test('curated alkali and alkaline-earth water reactions produce spawnable hydrox
   assert.match(magnesium?.limitations || '', /educational water-reaction model/i);
 });
 
+test('barium oxide hydration provides catalog-backed barium hydroxide for acid-base reactions', () => {
+  const conditions = { temperatureK:293, pressureAtm:1 };
+  const hydration = supportedReaction(['BaO', 'H2O'], conditions);
+  assert.equal(hydration?.id, 'barium-oxide-hydration');
+  assert.deepEqual(hydration?.reactantStoichiometry, { BaO:1, H2O:1 });
+  assert.deepEqual(hydration?.productStoichiometry, { BaOH2:1 });
+
+  const expectedNeutralizations = [
+    [['BaOH2', 'HCl'], 'barium-hydroxide-hydrochloric', { BaOH2:1, HCl:2 }, { BaCl2:1, H2O:2 }],
+    [['BaOH2', 'H2SO4'], 'barium-hydroxide-sulfuric', { BaOH2:1, H2SO4:1 }, { BaSO4:1, H2O:2 }]
+  ];
+  for (const [reactants, id, reactantStoichiometry, productStoichiometry] of expectedNeutralizations) {
+    const rule = supportedReaction(reactants, conditions);
+    assert.equal(rule?.id, id);
+    assert.deepEqual(rule?.reactantStoichiometry, reactantStoichiometry);
+    assert.deepEqual(rule?.productStoichiometry, productStoichiometry);
+  }
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['BaO', 'H2O', 'BaOH2', 'HCl', 'BaCl2', 'H2SO4', 'BaSO4']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  const sulfate = REACTION_RULES.find((rule) => rule.id === 'barium-hydroxide-sulfuric');
+  assert.match(sulfate?.limitations || '', /educational acid-base neutralization model/i);
+});
+
 test('curated metal plus sulfuric acid reactions yield catalog-backed sulfates and hydrogen from complete sets', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedRules = [
