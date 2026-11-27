@@ -168,7 +168,8 @@ test('barium carbonate reacts with common mineral acids into catalog-backed salt
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedReactions = [
     [['BaCO3', 'HCl'], 'barium-carbonate-hydrochloric', { BaCO3:1, HCl:2 }, { BaCl2:1, H2O:1, CO2:1 }],
-    [['BaCO3', 'H2SO4'], 'barium-carbonate-sulfuric', { BaCO3:1, H2SO4:1 }, { BaSO4:1, H2O:1, CO2:1 }]
+    [['BaCO3', 'H2SO4'], 'barium-carbonate-sulfuric', { BaCO3:1, H2SO4:1 }, { BaSO4:1, H2O:1, CO2:1 }],
+    [['BaCO3', 'HNO3'], 'barium-carbonate-nitric', { BaCO3:1, HNO3:2 }, { BaNO32:1, H2O:1, CO2:1 }]
   ];
   for (const [reactants, id, reactantStoichiometry, productStoichiometry] of expectedReactions) {
     const rule = supportedReaction(reactants, conditions);
