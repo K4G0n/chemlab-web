@@ -220,6 +220,17 @@ test('barium carbonate reacts with common mineral acids into catalog-backed salt
   assert.match(sulfuric?.limitations || '', /educational carbonate-acid model/i);
 });
 
+test('calcium carbonate reacts with hydroiodic acid into catalog-backed calcium iodide, water, and carbon dioxide', () => {
+  const rule = supportedReaction(['CaCO3', 'HI'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'calcium-carbonate-hydroiodic');
+  assert.deepEqual(rule?.reactantStoichiometry, { CaCO3:1, HI:2 });
+  assert.deepEqual(rule?.productStoichiometry, { CaI2:1, H2O:1, CO2:1 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['CaCO3', 'HI', 'CaI2', 'H2O', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational carbonate-acid model/i);
+});
+
 test('magnesium carbonate reacts with common mineral acids into catalog-backed salts, water, and carbon dioxide', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedReactions = [
