@@ -971,3 +971,14 @@ test('iron(II) hydroxide decomposes into catalog-backed iron(II) oxide and water
   for (const id of ['FeOH2', 'FeO', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
   assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
 });
+
+test('lead(II) carbonate decomposes into catalog-backed lead(II) oxide and carbon dioxide only when strongly heated', () => {
+  assert.equal(supportedUnaryReaction('PbCO3', { temperatureK:500, pressureAtm:1 }), null);
+  const rule = supportedUnaryReaction('PbCO3', { temperatureK:750, pressureAtm:1 });
+  assert.equal(rule?.id, 'lead-carbonate-decomposition');
+  assert.deepEqual(rule?.reactantStoichiometry, { PbCO3:1 });
+  assert.deepEqual(rule?.productStoichiometry, { PbO:1, CO2:1 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['PbCO3', 'PbO', 'CO2']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational thermal decomposition model/i);
+});
