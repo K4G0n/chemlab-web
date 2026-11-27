@@ -568,6 +568,16 @@ test('calcium hydroxide and hydrobromic acid yield catalog-backed calcium bromid
   assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
 });
 
+test('calcium hydroxide and hydroiodic acid yield catalog-backed calcium iodide and water', () => {
+  const rule = supportedReaction(['CaOH2', 'HI'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'calcium-hydroxide-hydroiodic');
+  assert.deepEqual(rule?.reactantStoichiometry, { CaOH2:1, HI:2 });
+  assert.deepEqual(rule?.productStoichiometry, { CaI2:1, H2O:2 });
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['CaOH2', 'HI', 'CaI2', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational acid-base neutralization model/i);
+});
+
 test('unary decomposition rules are independently indexed and condition-gated', () => {
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:293, pressureAtm:1 }), null);
   assert.equal(supportedUnaryReaction('CaCO3', { temperatureK:850, pressureAtm:1 })?.id, 'limestone-decomposition');
