@@ -90,6 +90,17 @@ test('magnesium oxide hydration provides catalog-backed magnesium hydroxide for 
   assert.match(hydration?.limitations || '', /educational oxide-hydration model/i);
 });
 
+test('iron(II) oxide neutralizes hydrochloric acid into catalog-backed iron(II) chloride and water', () => {
+  const rule = supportedReaction(['FeO', 'HCl'], { temperatureK:293, pressureAtm:1 });
+  assert.equal(rule?.id, 'iron-ii-oxide-hydrochloric');
+  assert.deepEqual(rule?.reactantStoichiometry, { FeO:1, HCl:2 });
+  assert.deepEqual(rule?.productStoichiometry, { FeCl2:1, H2O:1 });
+
+  const spawnableIds = new Set(COMPOUNDS.map((compound) => compound.id));
+  for (const id of ['FeO', 'HCl', 'FeCl2', 'H2O']) assert.equal(spawnableIds.has(id), true, `${id} must be spawnable`);
+  assert.match(rule?.limitations || '', /educational acid-metal-oxide model/i);
+});
+
 test('barium oxide neutralizes common mineral acids into catalog-backed salts and water', () => {
   const conditions = { temperatureK:293, pressureAtm:1 };
   const expectedReactions = [
