@@ -93,6 +93,25 @@ export function connectedBodyClusters(bodies, neighborDistance = 72) {
   return clusters;
 }
 
+export function touchingBodyCluster(bodies, seeds, contactPairs = []) {
+  const available = new Set(bodies);
+  const queue = [...new Set(seeds || [])].filter(body => available.has(body));
+  if (!queue.length) return [];
+  const neighbors = new Map(queue.map(body => [body, new Set()]));
+  for (const body of available) if (!neighbors.has(body)) neighbors.set(body, new Set());
+  for (const pair of contactPairs) {
+    const left = pair?.bodyA, right = pair?.bodyB;
+    if (!available.has(left) || !available.has(right)) continue;
+    neighbors.get(left).add(right); neighbors.get(right).add(left);
+  }
+  const cluster = [], seen = new Set(queue);
+  while (queue.length) {
+    const body = queue.shift(); cluster.push(body);
+    for (const neighbor of neighbors.get(body) || []) if (!seen.has(neighbor)) { seen.add(neighbor); queue.push(neighbor); }
+  }
+  return cluster;
+}
+
 export function collisionClusterForBodies(bodies, collisionBodies, neighborDistance = 72) {
   const seeds = new Set(collisionBodies || []);
   if (!seeds.size || [...seeds].some(body => !bodies.includes(body))) return [];

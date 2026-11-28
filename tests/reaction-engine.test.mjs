@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { REACTION_RULES } from '../chemistry.js';
-import { allocateCompactParticipants, candidateRulesForComponents, collisionClusterForBodies, findBestReactionParticipantBodies, findReactionParticipantBatch, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
+import { allocateCompactParticipants, candidateRulesForComponents, collisionClusterForBodies, touchingBodyCluster, findBestReactionParticipantBodies, findReactionParticipantBatch, findReactionParticipantBodies, indexBodiesByComponent, planReaction, rankComponentSourcesByAnchor, spatialNeighborPairs } from '../reaction-engine.js';
 
 const byId = (id) => REACTION_RULES.find((rule) => rule.id === id);
 
@@ -71,6 +71,16 @@ test('spatial neighbor pruning yields each nearby candidate pair once across gri
     ['left', 'nearby'],
     ['right', 'nearby']
   ]);
+});
+
+test('touching-body clusters exclude nearby materials without an actual contact pair', () => {
+  const calcium = { id:'calcium', position:{x:0,y:0} };
+  const water = { id:'water', position:{x:15,y:0} };
+  const distantWater = { id:'distant-water', position:{x:45,y:0} };
+  assert.deepEqual(
+    touchingBodyCluster([calcium, water, distantWater], [calcium], [{ bodyA:calcium, bodyB:water }]).map(({ id }) => id),
+    ['calcium', 'water']
+  );
 });
 
 test('collision cluster includes connected catalyst bodies near an otherwise binary collision', () => {
